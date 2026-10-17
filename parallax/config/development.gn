@@ -1,0 +1,15 @@
+# Local Linux x86-64 development build with assertions and component linking.
+target_os = "linux"
+target_cpu = "x64"
+is_debug = true
+is_component_build = true
+is_official_build = false
+is_chrome_branded = false
+symbol_level = 1
+blink_symbol_level = 0
+v8_symbol_level = 0
+chrome_pgo_phase = 0
+use_remoteexec = false
+use_siso = true
+proprietary_codecs = false
+ffmpeg_branding = "Chromium"

@@ -1,0 +1,23 @@
+{
+  "chromium": {
+    "tag": "155.0.8059.84",
+    "revision": "5869fe313571d75152b77813cf0a4ee26a4e6df0",
+    "repository": "https://chromium.googlesource.com/chromium/src.git",
+    "source_directory": "src"
+  },
+  "depot_tools": {
+    "revision": "d38909eb68d85b91259f4bf20fe5ebcd38461bc2",
+    "repository": "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
+  },
+  "branding": {
+    "product_name": "Parallax",
+    "company_name": "Parallax Web Services",
+    "logo": "parallax/branding/parallax-orbital.svg",
+    "logo_sha256": "fb6317a9dda1267265ad18147173aa60ee14696a18b5dde3221973de8dbb13a5",
+    "source_repository": "../marketing",
+    "source_path": "public/assets/Parallax Mark.svg"
+  },
+  "primary_platform": "linux",
+  "release_resolved_at": "2026-10-17",
+  "release_source": "https://versionhistory.googleapis.com/v1/chrome/platforms/linux/channels/stable/versions?page_size=1"
+}

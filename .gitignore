@@ -1,0 +1,11 @@
+/parallax/.build/
+/parallax/.cache/
+/parallax/**/__pycache__/
+/.gclient_entries
+/.gcs_entries
+/.gclient_previous_sync_commits
+/.gclient_previous_custom_vars
+/.gclient_last_sync_build_vars.json
+/.gclient_last_sync_build_vars
+/.cipd/
+/src/out/

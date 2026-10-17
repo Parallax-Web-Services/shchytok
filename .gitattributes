@@ -1,2 +1,4 @@
 parallax/** text=auto eol=lf
 src/chrome/app/theme/chromium/BRANDING text eol=lf
+src/chrome/app/theme/chromium/product_logo*.svg text eol=lf
+src/chrome/app/theme/chromium/linux/product_logo_32.xpm text eol=lf

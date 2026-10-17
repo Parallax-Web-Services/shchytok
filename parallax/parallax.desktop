@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Parallax
+GenericName=Web Browser
+Comment=Browse with Parallax
+Exec=parallax %U
+Icon=parallax
+Terminal=false
+Categories=Network;WebBrowser;
+MimeType=text/html;x-scheme-handler/http;x-scheme-handler/https;
+StartupNotify=true
+StartupWMClass=parallax

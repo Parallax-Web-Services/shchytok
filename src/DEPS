@@ -34,7 +34,8 @@
 
 # We expect all git dependencies specified in this file to be in sync with git
 # submodules (gitlinks).
-git_dependencies = 'SYNC'
+# Parallax: the squashed source snapshot uses DEPS instead of Chromium gitlinks.
+git_dependencies = 'DEPS'
 
 gclient_gn_args_file = 'src/build/config/gclient_args.gni'
 gclient_gn_args = [
