@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Apply the reviewed Parallax branding delta to Chromium 155.0.8059.84.
 
-Only the exact upstream inputs, or their exact branded outputs, are accepted.
+Only exact upstream inputs, reviewed prior branding, or final outputs are accepted.
 This deliberately fails on source drift instead of guessing at a new Chromium
 revision. Run after source extraction, before local edits to the covered files.
 All inputs are validated before staging any output; replacements are atomic per
 file. --check is read-only and exits 1 when branding still needs to be applied.
 
-Linux identity is covered. Internal chrome executable and URL scheme names,
-ChromiumOS, upstream credits, and macOS/Windows installation identities remain
-upstream. GRIT falls back to English for changed strings without translations.
+Linux browser identity and visible ParallaxOS product names are covered. Internal
+chrome executable and URL scheme names, upstream credits, and macOS/Windows
+installation identities remain upstream. GRIT falls back to English for changed
+strings without translations.
 """
 
 from __future__ import annotations
@@ -29,6 +30,7 @@ import xml.etree.ElementTree as ET
 
 UPSTREAM_VERSION = "155.0.8059.84"
 PRODUCT = "Parallax"
+OS_PRODUCT = "ParallaxOS"
 COMPANY = "Parallax Web Services"
 
 
@@ -66,6 +68,7 @@ _MESSAGE = re.compile(
 )
 _XML_TOKEN = re.compile(r"(<!--.*?-->|<(?:[^>\"']|\"[^\"]*\"|'[^']*')*>)", re.DOTALL)
 _PRODUCT_WORD = re.compile(r"\bChromium\b")
+_OS_PRODUCT_WORD = re.compile(r"\b(?:ChromiumOS|Chromium OS)\b")
 
 
 def brand_messages(text: str) -> str:
@@ -92,6 +95,7 @@ def brand_messages(text: str) -> str:
                     elif re.match(r"</ex\s*>", token):
                         example_depth -= 1
                 elif not example_depth:
+                    token = _OS_PRODUCT_WORD.sub(OS_PRODUCT, token)
                     tokens[index] = _PRODUCT_WORD.sub(PRODUCT, token)
             body = "".join(tokens)
         return opening + body + "</message>"
@@ -129,27 +133,44 @@ def brand_linux_icon(text: str) -> str:
     )
 
 
+def brand_ash_system_name(text: str) -> str:
+    # Ash owns its notification-source name separately from chrome/app strings.
+    # Keep Google-branded branches and ChromiumOS Terms/license references intact.
+    old = (
+        '        <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" '
+        'desc="The source of a system-generated notification, as displayed to the user.">\n'
+        '          ChromiumOS\n'
+        '        </message>'
+    )
+    return replace_once(text, old, old.replace("          ChromiumOS\n", "          ParallaxOS\n"))
+
+
 @dataclass(frozen=True)
 class Input:
     path: str
     upstream_sha256: str
     branded_sha256: str
     transform: Callable[[str], str]
+    previous_sha256: tuple[str, ...] = ()
 
 
 # Hashes of bytes from the official immutable 155.0.8059.84 source tag, obtained
 # via https://chromium.googlesource.com/chromium/src/+/refs/tags/155.0.8059.84/ .
-# Updating Chromium requires reviewing these transformations and both hashes.
+# Updating Chromium requires reviewing transformations and every accepted hash.
+# Prior browser-only branding is accepted only where an explicit migration hash
+# is listed; arbitrary local modifications remain an error.
 INPUTS = (
     Input("chrome/app/theme/chromium/BRANDING",
           "15ac20cb8744ebac0815961059231baefa71fd4ed3023cb2094aaf8a34ae423b",
           "d3cbfc28494d83d9ce667e9859ca28c95aa80f35161f8c83f9bcf24f46740446", brand_identity),
     Input("chrome/app/chromium_strings.grd",
           "848216b77ae1c57f8bce5f2fdede59ead363cdabb618c0998ae841c5a2574c8a",
-          "36ec04daa9d035a639d1574a03f9d89f775c054ef8062d98a00b7cde87e826c3", brand_messages),
+          "49be52a3bd63e32d686731f596bda46d8c681287117d3e14eed2c1a1552e5a3e", brand_messages,
+          ("36ec04daa9d035a639d1574a03f9d89f775c054ef8062d98a00b7cde87e826c3",)),
     Input("chrome/app/settings_chromium_strings.grdp",
           "9fb3a5d1020f25121dbc59df33031554bd9f8498c74aa5c220a26364ee0d2b57",
-          "eba3841353ca89da8e27949c6a72940e27ff09fad95e0e1a8c9165b86ea65c05", brand_messages),
+          "83b2e5a0e9299e36f27958fbd5937cd8f1d8759d0fbd06eb18aaee10605bd771", brand_messages,
+          ("eba3841353ca89da8e27949c6a72940e27ff09fad95e0e1a8c9165b86ea65c05",)),
     Input("chrome/common/chrome_paths_linux.cc",
           "e4d5a3c62d12f018b5e37dc86a474570ae278b36f772863802f1663e923d33cc",
           "b0e48d0e74cd10b90348be45464bb11f85f49fc91f99eceb59683c1732af6b69", brand_linux_profile),
@@ -159,6 +180,10 @@ INPUTS = (
     Input("chrome/browser/shell_integration_linux.cc",
           "b4509b121e301eff8889a038ae6c917fa228877099b248273d7220043c318779",
           "67eac12997e3539128f4069a6b1dd2dadd64721e69771140f29e493a471fea37", brand_linux_icon),
+    Input("ash/ash_strings.grd",
+          "d63cf330d7c47dc6aff81a7c763df4d2c7a9127b48bcd2121df88efddf2928dc",
+          "d978c2c6d1e1334cdbd4fd59c8a87edac34acb5b546f9d283d643c9723a05e17",
+          brand_ash_system_name),
 )
 
 
@@ -190,10 +215,10 @@ def preflight(source_root: Path, inputs: tuple[Input, ...] | None = None) -> lis
         current = digest(before)
         if current == entry.branded_sha256:
             continue
-        if current != entry.upstream_sha256:
+        if current not in (entry.upstream_sha256, *entry.previous_sha256):
             raise BrandingError(
                 f"source drift in {entry.path}: SHA-256 {current}; expected "
-                f"Chromium {UPSTREAM_VERSION} or the reviewed Parallax output"
+                f"Chromium {UPSTREAM_VERSION}, reviewed prior branding, or the final Parallax output"
             )
         after = entry.transform(before.decode("utf-8")).encode("utf-8")
         if digest(after) != entry.branded_sha256:

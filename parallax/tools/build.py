@@ -19,7 +19,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 MIN_FREE_BYTES = 100 * 1024**3
 MIN_RAM_BYTES = 16 * 1024**3
-OUTPUTS = {"release": "Parallax", "development": "ParallaxDevelopment"}
+OUTPUTS = {"release": "Parallax", "development": "ParallaxDevelopment",
+           "os-development": "ParallaxOS"}
 DEPOT_REPOSITORY = "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
 LASTCHANGE_HOOK = {
     "name": "lastchange",
@@ -30,6 +31,17 @@ LASTCHANGE_HOOK = {
     ],
 }
 
+
+LASTCHANGE_CROS_HOOK = {
+    "name": "lastchange_commit_position_cros",
+    "pattern": ".",
+    "condition": "checkout_chromeos",
+    "action": [
+        "python3", "src/build/util/lastchange.py", "-m", "CHROMIUM",
+        "--commit-position-header", "src/build/util/LASTCHANGE_commit_position.h",
+        "--filter", "",
+    ],
+}
 
 class BuildError(RuntimeError):
     """An actionable build prerequisite failure."""
@@ -110,10 +122,17 @@ def validate_client(root: Path) -> None:
     if (solution.get("name") != "src" or solution.get("url") is not None
             or solution.get("managed") is not False or solution.get("deps_file") != "DEPS"):
         raise BuildError(".gclient must use name='src', url=None, managed=False, deps_file='DEPS'")
-    if config.get("target_os") != ["linux"] or config.get("target_os_only") is not True:
-        raise BuildError("This workflow requires a Linux-only .gclient configuration")
-    if solution.get("custom_hooks") != [LASTCHANGE_HOOK]:
+    if config.get("target_os") != ["linux", "chromeos"] or config.get("target_os_only") is not True:
+        raise BuildError("This workflow requires Linux and ChromeOS .gclient targets")
+    if solution.get("custom_hooks") != [LASTCHANGE_HOOK, LASTCHANGE_CROS_HOOK]:
         raise BuildError(".gclient must preserve the scoped Parallax LASTCHANGE hook")
+    custom_vars = solution.get("custom_vars", {})
+    for key in ("cros_boards", "cros_boards_with_qemu_images"):
+        if custom_vars.get(key):
+            raise BuildError("The local Ash target must not download a ChromeOS board SDK or image")
+    for key in ("checkout_src_internal", "checkout_src_internal_infra", "checkout_google_internal"):
+        if custom_vars.get(key):
+            raise BuildError("Parallax builds use public Chromium dependencies")
     if solution.get("custom_deps"):
         raise BuildError("Unexpected .gclient custom_deps; review the dependency configuration")
 

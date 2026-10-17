@@ -66,6 +66,11 @@ MESSAGES = """<?xml version="1.0" encoding="UTF-8"?>
   <message name="IDS_ABOUT_TERMS_OF_SERVICE">Not used in Chromium. Placeholder to keep resource maps in sync.</message>
   <message name="IDS_UPDATER">ChromiumUpdater.exe is required</message>
   <message name="IDS_PRODUCT_OS_NAME">ChromiumOS</message>
+  <message name="IDS_SHORT_PRODUCT_OS_NAME">ChromiumOS</message>
+  <message name="IDS_INSTALLED_PRODUCT_OS_NAME">ChromiumOS</message>
+  <message name="IDS_SETTINGS_ABOUT_OS">About Chromium OS</message>
+  <message name="IDS_OS_UPDATE">Restart ChromiumOS to update Chromium OS.</message>
+  <message name="IDS_OS_REFERENCE"><ph name="EXAMPLE">$1<ex>ChromiumOS</ex></ph> ChromiumOSUpdater and chrome://os-settings</message>
 </messages></grit>
 """
 BRANDED_MESSAGES = """<?xml version="1.0" encoding="UTF-8"?>
@@ -82,7 +87,12 @@ BRANDED_MESSAGES = """<?xml version="1.0" encoding="UTF-8"?>
   <message name="IDS_ABOUT_CROS_VERSION_LICENSE">ChromiumOS and Chromium credits</message>
   <message name="IDS_ABOUT_TERMS_OF_SERVICE">Not used in Chromium. Placeholder to keep resource maps in sync.</message>
   <message name="IDS_UPDATER">ChromiumUpdater.exe is required</message>
-  <message name="IDS_PRODUCT_OS_NAME">ChromiumOS</message>
+  <message name="IDS_PRODUCT_OS_NAME">ParallaxOS</message>
+  <message name="IDS_SHORT_PRODUCT_OS_NAME">ParallaxOS</message>
+  <message name="IDS_INSTALLED_PRODUCT_OS_NAME">ParallaxOS</message>
+  <message name="IDS_SETTINGS_ABOUT_OS">About ParallaxOS</message>
+  <message name="IDS_OS_UPDATE">Restart ParallaxOS to update ParallaxOS.</message>
+  <message name="IDS_OS_REFERENCE"><ph name="EXAMPLE">$1<ex>ChromiumOS</ex></ph> ChromiumOSUpdater and chrome://os-settings</message>
 </messages></grit>
 """
 
@@ -141,12 +151,42 @@ std::string GetDirectLaunchUrlScheme() {
 }
 """
 
+ASH_SYSTEM_NAME = '''<grit><messages>
+      <if expr="_google_chrome">
+        <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" desc="The source of a system-generated notification, as displayed to the user.">
+          ChromeOS
+        </message>
+      </if>
+      <if expr="not _google_chrome">
+        <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" desc="The source of a system-generated notification, as displayed to the user.">
+          ChromiumOS
+        </message>
+      </if>
+      <message name="IDS_TERMS_OF_SERVICE_SCREEN_SUBHEADING">These terms do not expand, modify or limit the ChromiumOS Terms.</message>
+</messages></grit>
+'''
+BRANDED_ASH_SYSTEM_NAME = '''<grit><messages>
+      <if expr="_google_chrome">
+        <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" desc="The source of a system-generated notification, as displayed to the user.">
+          ChromeOS
+        </message>
+      </if>
+      <if expr="not _google_chrome">
+        <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" desc="The source of a system-generated notification, as displayed to the user.">
+          ParallaxOS
+        </message>
+      </if>
+      <message name="IDS_TERMS_OF_SERVICE_SCREEN_SUBHEADING">These terms do not expand, modify or limit the ChromiumOS Terms.</message>
+</messages></grit>
+'''
+
 FIXTURES = (
     ("chrome/app/theme/chromium/BRANDING", IDENTITY, BRANDED_IDENTITY, branding.brand_identity),
     ("chrome/app/chromium_strings.grd", MESSAGES, BRANDED_MESSAGES, branding.brand_messages),
     ("chrome/common/chrome_paths_linux.cc", PROFILE, BRANDED_PROFILE, branding.brand_linux_profile),
     ("chrome/common/channel_info_posix.cc", DESKTOP, BRANDED_DESKTOP, branding.brand_linux_desktop),
     ("chrome/browser/shell_integration_linux.cc", ICON, BRANDED_ICON, branding.brand_linux_icon),
+    ("ash/ash_strings.grd", ASH_SYSTEM_NAME, BRANDED_ASH_SYSTEM_NAME, branding.brand_ash_system_name),
 )
 
 
@@ -171,13 +211,20 @@ class BrandingTransformsTest(unittest.TestCase):
 
     def test_production_manifest_is_immutable_and_complete(self):
         self.assertEqual(branding.UPSTREAM_VERSION, "155.0.8059.84")
-        self.assertEqual(len(branding.INPUTS), 6)
+        self.assertEqual(len(branding.INPUTS), 7)
         self.assertIn("chrome/app/settings_chromium_strings.grdp",
                       {entry.path for entry in branding.INPUTS})
         for entry in branding.INPUTS:
             self.assertRegex(entry.upstream_sha256, r"^[0-9a-f]{64}$")
             self.assertRegex(entry.branded_sha256, r"^[0-9a-f]{64}$")
             self.assertNotEqual(entry.upstream_sha256, entry.branded_sha256)
+            for previous in entry.previous_sha256:
+                self.assertRegex(previous, r"^[0-9a-f]{64}$")
+                self.assertNotEqual(previous, entry.branded_sha256)
+        self.assertEqual(
+            {entry.path for entry in branding.INPUTS if entry.previous_sha256},
+            {"chrome/app/chromium_strings.grd", "chrome/app/settings_chromium_strings.grdp"},
+        )
 
 
 class BrandingOperationTest(unittest.TestCase):
@@ -203,6 +250,52 @@ class BrandingOperationTest(unittest.TestCase):
             with redirect_stdout(io.StringIO()) as stdout, redirect_stderr(io.StringIO()) as stderr:
                 status = branding.main(["--source-root", str(self.root), *arguments])
         return status, stdout.getvalue(), stderr.getvalue()
+
+    def add_os_migration(self):
+        # A reviewed browser-only release already has Parallax browser text but
+        # retains ChromiumOS. Its exact old digest is a distinct accepted input.
+        path = "chrome/app/chromium_strings.grd"
+        upstream = ('<grit><message name="IDS_PRODUCT_NAME">Chromium</message>'
+                    '<message name="IDS_PRODUCT_OS_NAME">ChromiumOS</message></grit>\n')
+        prior = ('<grit><message name="IDS_PRODUCT_NAME">Parallax</message>'
+                 '<message name="IDS_PRODUCT_OS_NAME">ChromiumOS</message></grit>\n')
+        final = ('<grit><message name="IDS_PRODUCT_NAME">Parallax</message>'
+                 '<message name="IDS_PRODUCT_OS_NAME">ParallaxOS</message></grit>\n')
+        entry = branding.Input(path, branding.digest(upstream.encode()),
+                               branding.digest(final.encode()), branding.brand_messages,
+                               (branding.digest(prior.encode()),))
+        self.inputs = tuple(entry if old.path == path else old for old in self.inputs)
+        (self.root / path).write_bytes(prior.encode())
+        return self.root / path, upstream.encode(), final.encode()
+
+    def test_migrates_reviewed_prior_branding_and_check_stays_read_only(self):
+        path, _, expected = self.add_os_migration()
+        before = self.snapshot()
+        self.assertEqual(self.run_cli("--check")[0], 1)
+        self.assertEqual(self.snapshot(), before)
+        self.assertEqual(self.run_cli()[0], 0)
+        self.assertEqual(path.read_bytes(), expected)
+        applied = self.snapshot()
+        mtime = path.stat().st_mtime_ns
+        self.assertEqual(self.run_cli("--check")[0], 0)
+        self.assertEqual(self.run_cli()[0], 0)
+        self.assertEqual(self.snapshot(), applied)
+        self.assertEqual(path.stat().st_mtime_ns, mtime)
+
+    def test_os_migration_still_accepts_pristine_upstream(self):
+        path, pristine, expected = self.add_os_migration()
+        path.write_bytes(pristine)
+        self.assertEqual(self.run_cli()[0], 0)
+        self.assertEqual(path.read_bytes(), expected)
+
+    def test_modified_prior_branding_prevents_every_write(self):
+        path, _, _ = self.add_os_migration()
+        path.write_bytes(path.read_bytes() + b"<!-- unreviewed local change -->\n")
+        before = self.snapshot()
+        status, _, error = self.run_cli()
+        self.assertEqual(status, 2)
+        self.assertIn("source drift", error)
+        self.assertEqual(self.snapshot(), before)
 
     def test_apply_then_check_and_repeat_preserve_bytes_and_mtime(self):
         self.assertEqual(self.run_cli()[0], 0)

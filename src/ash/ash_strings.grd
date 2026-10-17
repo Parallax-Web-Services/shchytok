@@ -5339,7 +5339,7 @@ No devices connected.
       </if>
       <if expr="not _google_chrome">
         <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" desc="The source of a system-generated notification, as displayed to the user.">
-          ChromiumOS
+          ParallaxOS
         </message>
       </if>
       <message name="IDS_ASH_MESSAGE_CENTER_ACCELERATOR_NO_NOTIFICATIONS" desc="The toast message displayed when Alt+Shift+N is pressed but there are no notifications.">

@@ -4,6 +4,8 @@ Parallax is a full Chromium source fork. The Chromium snapshot lives in `src/`; 
 
 The source is pinned to Chromium **155.0.8059.84**, revision `5869fe313571d75152b77813cf0a4ee26a4e6df0`. The exact depot_tools revision and original orbital logo checksum are recorded in [upstream.json](upstream.json). The logo is copied from the existing marketing repository's `public/assets/Parallax Mark.svg`, preserving its SVG paths.
 
+The same source also supports the native Ash `os-development` target. See [the ParallaxOS guide](os/README.md) for its build, separate profile, native resource validation, and the future bootable ChromiumOS image milestone.
+
 ## Build on Linux
 
 The first build workflow targets **Linux x86-64**. Use a Linux checkout path without spaces, Git, Python **3.10 or newer** (3.11+ recommended), **more than 16 GiB RAM**, and **at least 100 GiB free disk space**. Allow additional room for dependencies, debug outputs and future upgrades. A full build can take hours. Windows and macOS compilation and packaging have not been validated.
@@ -28,7 +30,7 @@ The workflow performs the following steps:
 - `bootstrap` downloads the official public depot_tools repository at the immutable revision in `upstream.json`. Its cache lives in `parallax/.cache/depot_tools`. It also runs the official `ensure_bootstrap` helper to initialize depot_tools Python and CIPD runtimes without updating the pinned checkout. Re-running `bootstrap` repairs a missing runtime in an existing verified cache. Automatic depot_tools updates and interactive Git credential prompts are disabled. Git subprocesses use LF line endings and preserve Linux symlinks, including when host Git defaults request CRLF conversion.
 - `sync` reads the pinned `src/DEPS`, downloads dependencies and runs Chromium's hooks. It can download substantial data.
 - `brand` generates product icons from the original orbital SVG and applies guarded Parallax source changes. Commit these source and branding changes together.
-- `build` verifies branding, writes the selected GN preset to `args.gn`, runs `gn gen --check`, then `autoninja -C out/Parallax chrome`. It preserves existing output arguments if they differ from the preset and asks you to review them.
+- `build` verifies branding, writes the selected GN preset to `args.gn`, runs `gn gen --check`, then builds the `chrome` target in the selected output directory (`out/Parallax` by default). It preserves existing output arguments if they differ from the preset and asks you to review them.
 
 To check prerequisites, configure without compiling, or build the development preset:
 
@@ -38,7 +40,7 @@ python3 parallax/tools/build.py configure
 python3 parallax/tools/build.py build --configuration development --jobs 16
 ```
 
-Release output is `src/out/Parallax/chrome`. Development output is `src/out/ParallaxDevelopment/chrome`. Both presets use local compilation with Siso through `autoninja`; no remote build account is required. The release preset uses optimization with limited symbols and disables PGO profile consumption. It is an initial local build preset, not an official Chrome distribution configuration.
+The browser presets produce `src/out/Parallax/chrome` for `release` and `src/out/ParallaxDevelopment/chrome` for `development`. The `os-development` preset produces `src/out/ParallaxOS/chrome` with the native ChromeOS/Ash system UI running on the Linux host. All presets use local compilation with Siso through `autoninja`; no remote build account is required. The release preset uses optimization with limited symbols and disables PGO profile consumption. It is an initial local build preset, not an official Chrome distribution configuration.
 
 Once branding and system dependencies are ready, `python3 parallax/tools/build.py all` combines bootstrap, dependency sync and build. It validates checked-in branding and does not regenerate it automatically.
 
@@ -51,7 +53,7 @@ python3 parallax/tools/launch.py -- https://example.com
 python3 parallax/tools/launch.py --configuration development -- about:blank
 ```
 
-The launcher starts the compiled browser with Chromium's sandbox enabled. It uses `$XDG_CONFIG_HOME/parallax` (normally `~/.config/parallax`) or `parallax-development` as a separate profile. It rejects sandbox-disabling command-line flags and root execution. Additional Chromium arguments go after `--`; an explicit `--user-data-dir` overrides the default profile.
+The launcher starts the compiled browser with Chromium's sandbox enabled. The browser profiles are `$XDG_CONFIG_HOME/parallax` for `release` and `$XDG_CONFIG_HOME/parallax-development` for `development`; the default base directory is `~/.config`. `os-development` uses its own `parallaxos-development` profile under the same base directory. It rejects sandbox-disabling command-line flags and root execution. Additional Chromium arguments go after `--`; an explicit `--user-data-dir` overrides the default profile.
 
 For a local Linux desktop entry, keep this checkout at its current path and install the wrapper, SVG and desktop file:
 
@@ -71,6 +73,8 @@ The outer Parallax repository owns the complete source snapshot under `src/`. Th
 
 The outer `.gitmodules` prefixes dependency paths with `src/` so the imported Chromium gitlinks remain valid. Populate dependencies with `python3 parallax/tools/build.py sync`, which uses `gclient sync` and applies Chromium's platform and checkout conditions, including excluding private dependencies. Do not use `git submodule update` for this setup.
 
+The shared `.gclient` requests Linux and ChromeOS dependencies. Its empty device-board settings keep the hosted Ash workflow separate from downloading a board SDK or a VM image.
+
 The named `lastchange` hook retains Chromium's output path and passes an empty commit filter, so `LASTCHANGE.committime` comes from the outer Parallax commit. This avoids Chromium's default `Change-Id` filter producing a zero revision and a 1970 build timestamp in a squashed fork. Dependency-specific Skia and Dawn revision hooks keep their upstream behavior. Commit the imported source before running dependency hooks so build metadata describes that source snapshot.
 
 This layout matches the `src/` paths in Chromium's dependencies and hooks. A solution named `.` would place those dependencies incorrectly. The imported `src/DEPS` uses `git_dependencies = 'DEPS'` so the immutable DEPS pins are authoritative for the squashed source. The `prepare` command applies only that known, guarded upstream declaration change when needed.
@@ -85,7 +89,7 @@ The import utility in `parallax/tools/import_upstream.py` reproduces the pinned 
 
 ## Branding and verification
 
-`is_chrome_branded = false` stays in both presets. Parallax uses the open Chromium resource path with the product text and icons patched in place. Google Chrome trademarks, private build infrastructure, Google API credentials, proprietary codecs and an automatic browser updater are not supplied.
+`is_chrome_branded = false` stays in all presets. Parallax uses the open Chromium resource path with the product text and icons patched in place. Google Chrome trademarks, private build infrastructure, Google API credentials, proprietary codecs and an automatic browser updater are not supplied.
 
 ```sh
 python3 parallax/tools/generate_branding.py --source-root src --check
@@ -109,6 +113,8 @@ python3 parallax/tools/verify_resources.py --source-root src --output-dir src/ou
 ```
 
 The read-only verifier checks the compiled English product names and company, retained Chromium copyright, generated version identity, and packed orbital SVGs and Linux icon against the checked-in artwork. It uses Chromium's own resource-pack reader and needs no additional Python packages. These resource checks do not establish that the full browser compiles or launches.
+
+Use `--configuration development` to select `src/out/ParallaxDevelopment` automatically. For the native system build, [the ParallaxOS resource instructions](os/README.md#validate-native-system-branding) add `ash/strings:strings_grit` and `--configuration os-development`, which also validates the compiled ParallaxOS identity in the browser and Ash packs.
 
 Upstream references: [Linux build instructions](https://chromium.googlesource.com/chromium/src/+/refs/tags/155.0.8059.84/docs/linux/build_instructions.md), [pinned DEPS](https://chromium.googlesource.com/chromium/src/+/5869fe313571d75152b77813cf0a4ee26a4e6df0/DEPS), and [gclient source](https://chromium.googlesource.com/chromium/tools/depot_tools/+/d38909eb68d85b91259f4bf20fe5ebcd38461bc2/gclient.py).
 

@@ -16,13 +16,25 @@ solutions = [
                     "-o", "src/build/util/LASTCHANGE", "--filter", "",
                 ],
             },
+            {
+                "name": "lastchange_commit_position_cros",
+                "pattern": ".",
+                "condition": "checkout_chromeos",
+                "action": [
+                    "python3", "src/build/util/lastchange.py", "-m", "CHROMIUM",
+                    "--commit-position-header", "src/build/util/LASTCHANGE_commit_position.h",
+                    "--filter", "",
+                ],
+            },
         ],
         "custom_vars": {
             "checkout_configuration": "small",
             "checkout_pgo_profiles": False,
             "checkout_src_internal": False,
+            "cros_boards": "",
+            "cros_boards_with_qemu_images": "",
         },
     },
 ]
-target_os = ["linux"]
+target_os = ["linux", "chromeos"]
 target_os_only = True

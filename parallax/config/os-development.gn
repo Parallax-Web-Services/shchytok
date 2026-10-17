@@ -1,0 +1,17 @@
+# Native Ash (linux-chromeos) development shell on a Linux x86-64 workstation.
+target_os = "chromeos"
+target_cpu = "x64"
+is_chromeos_device = false
+is_debug = true
+dcheck_always_on = true
+is_component_build = true
+is_official_build = false
+is_chrome_branded = false
+symbol_level = 1
+blink_symbol_level = 0
+v8_symbol_level = 0
+chrome_pgo_phase = 0
+use_remoteexec = false
+use_siso = true
+proprietary_codecs = false
+ffmpeg_branding = "Chromium"

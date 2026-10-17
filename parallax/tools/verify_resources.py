@@ -22,6 +22,11 @@ ROOT = Path(__file__).resolve().parents[2]
 LOGO = ROOT / "parallax/branding/parallax-orbital.svg"
 LOGO_SHA256 = "fb6317a9dda1267265ad18147173aa60ee14696a18b5dde3221973de8dbb13a5"
 COPYRIGHT = "Copyright {0,date,y} The Chromium Authors. All rights reserved."
+OUTPUTS = {
+    "release": "Parallax",
+    "development": "ParallaxDevelopment",
+    "os-development": "ParallaxOS",
+}
 
 
 class VerificationError(ValueError):
@@ -91,7 +96,10 @@ def verify_version_header(header: str) -> None:
         raise VerificationError("generated version header does not preserve Chromium's copyright")
 
 
-def verify(source_root: Path, output_dir: Path) -> None:
+def verify(source_root: Path, output_dir: Path, *, configuration: str = "release") -> None:
+    if configuration not in OUTPUTS:
+        raise VerificationError(f"unsupported build configuration: {configuration}")
+    native_os = configuration == "os-development"
     source_root, output_dir = source_root.resolve(), output_dir.resolve()
     generated = output_dir / "gen/chrome"
     files = {
@@ -103,6 +111,11 @@ def verify(source_root: Path, output_dir: Path) -> None:
         "linux_icon": source_root / "chrome/app/theme/chromium/linux/product_logo_64.png",
         "logo": LOGO,
     }
+    if native_os:
+        files.update(
+            ash_strings_header=output_dir / "gen/ash/strings/grit/ash_strings.h",
+            ash_strings_pack=output_dir / "gen/ash/strings/ash_strings_en-US.pak",
+        )
     missing = [str(path) for path in files.values() if not path.is_file()]
     if missing:
         raise VerificationError("missing required files (build the focused resource targets):\n  "
@@ -133,15 +146,26 @@ def verify(source_root: Path, output_dir: Path) -> None:
 
         strings = read_pack(files["strings_pack"])
         strings_header = files["strings_header"].read_text(encoding="utf-8")
-        for name, expected in (
+        expected_strings = [
             ("IDS_PRODUCT_NAME", "Parallax"),
             ("IDS_SHORT_PRODUCT_NAME", "Parallax"),
             ("IDS_ABOUT_VERSION_COMPANY_NAME", "Parallax Web Services"),
             ("IDS_ABOUT_VERSION_COPYRIGHT", COPYRIGHT),
-        ):
+        ]
+        if native_os:
+            expected_strings.append(("IDS_PRODUCT_OS_NAME", "ParallaxOS"))
+        for name, expected in expected_strings:
             actual = resource_text(strings, strings_header, name, reader)
             if actual != expected:
                 raise VerificationError(f"{name}: expected {expected!r}, found {actual!r}")
+
+        if native_os:
+            ash_strings = read_pack(files["ash_strings_pack"])
+            ash_header = files["ash_strings_header"].read_text(encoding="utf-8")
+            name = "IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME"
+            actual = resource_text(ash_strings, ash_header, name, reader)
+            if actual != "ParallaxOS":
+                raise VerificationError(f"{name}: expected 'ParallaxOS', found {actual!r}")
 
         images = read_pack(files["images_pack"])
         images_header = files["images_header"].read_text(encoding="utf-8")
@@ -162,16 +186,19 @@ def verify(source_root: Path, output_dir: Path) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-root", type=Path, default=ROOT / "src")
+    parser.add_argument("--configuration", choices=OUTPUTS, default="release")
     parser.add_argument("--output-dir", type=Path,
-                        help="GN output directory (default: SOURCE_ROOT/out/Parallax)")
+                        help="GN output directory (default: selected configuration under SOURCE_ROOT/out)")
     args = parser.parse_args(argv)
-    output = args.output_dir or args.source_root / "out/Parallax"
+    output = args.output_dir or args.source_root / "out" / OUTPUTS[args.configuration]
     try:
-        verify(args.source_root, output)
+        verify(args.source_root, output, configuration=args.configuration)
     except (OSError, UnicodeError, VerificationError) as error:
         print(f"Resource verification failed: {error}", file=sys.stderr)
         return 1
     print("PASS: compiled Parallax product names, company, copyrights, orbital SVGs, and Linux icon.")
+    if args.configuration == "os-development":
+        print("PASS: compiled ParallaxOS product name and native Ash system notification identity.")
     return 0
 
 

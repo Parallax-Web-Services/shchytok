@@ -35,9 +35,9 @@ class WorkflowTests(unittest.TestCase):
             "solutions": [{
                 "name": "src", "url": None, "managed": False,
                 "deps_file": "DEPS", "custom_deps": {},
-                "custom_hooks": [build.LASTCHANGE_HOOK],
+                "custom_hooks": [build.LASTCHANGE_HOOK, build.LASTCHANGE_CROS_HOOK],
             }],
-            "target_os": ["linux"],
+            "target_os": ["linux", "chromeos"],
             "target_os_only": True,
         }
         (self.root / ".gclient").write_text(
@@ -51,6 +51,109 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaisesRegex(build.BuildError, "url=None"):
             build.validate_client(self.root)
 
+    def test_client_requires_both_linux_and_chromeos_targets(self):
+        path = self.root / ".gclient"
+        original = path.read_text()
+        for targets in ("['linux']", "['chromeos']", "['linux', 'chromeos', 'android']"):
+            with self.subTest(targets=targets):
+                path.write_text(original.replace("['linux', 'chromeos']", targets))
+                with self.assertRaisesRegex(build.BuildError, "Linux and ChromeOS"):
+                    build.validate_client(self.root)
+        path.write_text(original)
+        build.validate_client(self.root)
+
+    def test_client_rejects_board_sdks_images_and_private_dependencies(self):
+        path = self.root / ".gclient"
+        original = path.read_text()
+        forbidden_vars = (
+            ("cros_boards", "amd64-generic", "board SDK"),
+            ("cros_boards_with_qemu_images", "amd64-generic", "board SDK"),
+            ("checkout_src_internal", True, "public Chromium"),
+            ("checkout_src_internal_infra", True, "public Chromium"),
+            ("checkout_google_internal", True, "public Chromium"),
+        )
+        for key, value, error in forbidden_vars:
+            with self.subTest(key=key):
+                altered = original.replace(
+                    "'custom_deps': {}", f"'custom_vars': {{{key!r}: {value!r}}}, 'custom_deps': {{}}"
+                )
+                path.write_text(altered)
+                with self.assertRaisesRegex(build.BuildError, error):
+                    build.validate_client(self.root)
+
+    def test_chromeos_commit_position_hook_preserves_upstream_options(self):
+        self.assertEqual(build.LASTCHANGE_CROS_HOOK, {
+            "name": "lastchange_commit_position_cros",
+            "pattern": ".",
+            "condition": "checkout_chromeos",
+            "action": [
+                "python3", "src/build/util/lastchange.py", "-m", "CHROMIUM",
+                "--commit-position-header", "src/build/util/LASTCHANGE_commit_position.h",
+                "--filter", "",
+            ],
+        })
+
+    def test_os_configuration_generates_native_ash_in_its_own_output(self):
+        preset = (TOOLS.parent / "config/os-development.gn").read_text(encoding="utf-8")
+        (self.root / "parallax/config/os-development.gn").write_text(preset)
+        with patch.object(build, "verify_depot", return_value=Path("/pinned/depot")), \
+                patch.object(build, "prepare_source"), \
+                patch.object(build, "check_branding"), \
+                patch.object(build, "run") as run:
+            output = build.configure(self.root, {}, "os-development")
+        self.assertEqual(output, self.root / "src/out/ParallaxOS")
+        run.assert_called_once()
+        self.assertEqual(run.call_args.args[0], [
+            str(Path("/pinned/depot/gn")), "gen", str(Path("out/ParallaxOS")), "--check",
+        ])
+        arguments = (output / "args.gn").read_text()
+        required = (
+            'target_os = "chromeos"', "is_chromeos_device = false", "is_debug = true",
+            "dcheck_always_on = true", "is_component_build = true", "use_remoteexec = false",
+            "is_chrome_branded = false", "chrome_pgo_phase = 0", "proprietary_codecs = false",
+        )
+        for setting in required:
+            self.assertIn(setting, arguments)
+
+    def test_os_build_compiles_chrome_target_from_ash_output(self):
+        output = self.root / "src/out/ParallaxOS"
+        with patch.object(build, "configure", return_value=output) as configure, \
+                patch.object(build, "verify_depot", return_value=Path("/pinned/depot")), \
+                patch.object(build, "run") as run:
+            build.build(self.root, {}, "os-development", 8)
+        configure.assert_called_once_with(self.root, {}, "os-development")
+        self.assertEqual(run.call_args.args[0], [
+            str(Path("/pinned/depot/autoninja")), "-C", str(Path("out/ParallaxOS")), "chrome", "-j", "8",
+        ])
+
+    def test_os_launcher_isolates_ash_profile_and_enables_host_clipboard(self):
+        binary = self.root / "src/out/ParallaxOS/chrome"
+        binary.parent.mkdir(parents=True)
+        binary.touch()
+        with patch.dict(os.environ, {"XDG_CONFIG_HOME": str(self.root / "config")}):
+            args = launch.launch_arguments(self.root, "os-development", ["about:blank"])
+        self.assertEqual(args, [
+            str(binary), f"--user-data-dir={self.root / 'config/parallaxos-development'}",
+            "--class=parallaxos", "--use-system-clipboard", "about:blank",
+        ])
+        self.assertFalse(any(arg.startswith("--login-") for arg in args))
+        with self.assertRaisesRegex(ValueError, "Sandbox"):
+            launch.launch_arguments(self.root, "os-development", ["--no-sandbox"])
+
+    def test_browser_release_and_development_launch_profiles_are_preserved(self):
+        for configuration, output, profile in (
+            ("release", "Parallax", "parallax"),
+            ("development", "ParallaxDevelopment", "parallax-development"),
+        ):
+            with self.subTest(configuration=configuration):
+                binary = self.root / "src/out" / output / "chrome"
+                binary.parent.mkdir(parents=True)
+                binary.touch()
+                with patch.dict(os.environ, {"XDG_CONFIG_HOME": str(self.root / "config")}):
+                    args = launch.launch_arguments(self.root, configuration, [])
+                self.assertEqual(args, [
+                    str(binary), f"--user-data-dir={self.root / 'config' / profile}", "--class=parallax",
+                ])
     def test_lastchange_hook_uses_fork_head_and_keeps_upstream_output(self):
         self.assertEqual(build.LASTCHANGE_HOOK, {
             "name": "lastchange",
