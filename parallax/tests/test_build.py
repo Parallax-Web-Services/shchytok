@@ -101,10 +101,10 @@ class WorkflowTests(unittest.TestCase):
                 patch.object(build, "check_branding"), \
                 patch.object(build, "run") as run:
             output = build.configure(self.root, {}, "os-development")
-        self.assertEqual(output, self.root / "src/out/ParallaxOS")
+        self.assertEqual(output, self.root / "src/out/ParallaxStation")
         run.assert_called_once()
         self.assertEqual(run.call_args.args[0], [
-            str(Path("/pinned/depot/gn")), "gen", str(Path("out/ParallaxOS")), "--check",
+            str(Path("/pinned/depot/gn")), "gen", str(Path("out/ParallaxStation")), "--check",
         ])
         arguments = (output / "args.gn").read_text()
         required = (
@@ -116,25 +116,25 @@ class WorkflowTests(unittest.TestCase):
             self.assertIn(setting, arguments)
 
     def test_os_build_compiles_chrome_target_from_ash_output(self):
-        output = self.root / "src/out/ParallaxOS"
+        output = self.root / "src/out/ParallaxStation"
         with patch.object(build, "configure", return_value=output) as configure, \
                 patch.object(build, "verify_depot", return_value=Path("/pinned/depot")), \
                 patch.object(build, "run") as run:
             build.build(self.root, {}, "os-development", 8)
         configure.assert_called_once_with(self.root, {}, "os-development")
         self.assertEqual(run.call_args.args[0], [
-            str(Path("/pinned/depot/autoninja")), "-C", str(Path("out/ParallaxOS")), "chrome", "-j", "8",
+            str(Path("/pinned/depot/autoninja")), "-C", str(Path("out/ParallaxStation")), "chrome", "-j", "8",
         ])
 
     def test_os_launcher_isolates_ash_profile_and_enables_host_clipboard(self):
-        binary = self.root / "src/out/ParallaxOS/chrome"
+        binary = self.root / "src/out/ParallaxStation/chrome"
         binary.parent.mkdir(parents=True)
         binary.touch()
         with patch.dict(os.environ, {"XDG_CONFIG_HOME": str(self.root / "config")}):
             args = launch.launch_arguments(self.root, "os-development", ["about:blank"])
         self.assertEqual(args, [
-            str(binary), f"--user-data-dir={self.root / 'config/parallaxos-development'}",
-            "--class=parallaxos", "--use-system-clipboard", "about:blank",
+            str(binary), f"--user-data-dir={self.root / 'config/parallax-station-development'}",
+            "--class=parallax-station", "--use-system-clipboard", "about:blank",
         ])
         self.assertFalse(any(arg.startswith("--login-") for arg in args))
         with self.assertRaisesRegex(ValueError, "Sandbox"):

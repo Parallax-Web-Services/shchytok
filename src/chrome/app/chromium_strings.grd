@@ -339,13 +339,13 @@ If you update this file, be sure also to update google_chrome_strings.grd. -->
       </if>
       <if expr="is_chromeos">
         <message name="IDS_PRODUCT_OS_NAME" desc="The ChromeOS application name">
-          ParallaxOS
+          Parallax Station
         </message>
         <message name="IDS_SHORT_PRODUCT_OS_NAME" desc="The ChromeOS application short name">
-          ParallaxOS
+          Parallax Station
         </message>
         <message name="IDS_INSTALLED_PRODUCT_OS_NAME" desc="Installed OS name">
-          ParallaxOS
+          Parallax Station
         </message>
       </if>
       <message name="IDS_PRODUCT_LOGO_ENTERPRISE_ALT_TEXT" desc="Alt text for the Chromium Enterprise logo image." formatter_data="android_java">
@@ -657,7 +657,7 @@ Parallax cannot read and write to its data directory:
       </message>
       <if expr="is_chromeos">
         <message name="IDS_EULA_CHECKBOX_ENABLE_LOGGING" desc="The label of the checkbox to enable/disable crash and user metrics logging">
-          Optional: Help improve ParallaxOS features and performance by automatically sending diagnostic and usage data to Google.
+          Optional: Help improve Parallax Station features and performance by automatically sending diagnostic and usage data to Google.
         </message>
       </if>
       <message name="IDS_PROFILE_TOO_NEW_ERROR" desc="Error displayed on startup when the profile is from a newer version of the product and can not be read">
@@ -1177,7 +1177,7 @@ Parallax is unable to recover your settings.
           About &amp;Parallax
         </message>
         <message name="IDS_RELAUNCH_TO_UPDATE" desc="The text label of the relaunch to update ChromeOS menu item">
-          Relaunch to update &amp;ParallaxOS
+          Relaunch to update &amp;Parallax Station
         </message>
       </if>
 
@@ -1537,22 +1537,22 @@ Parallax is unable to recover your settings.
       <!-- Sync/sign-in error messages -->
       <if expr="is_chromeos">
         <message name="IDS_SIGNIN_ERROR_SECONDARY_ACCOUNT_DISPLAY_SOURCE" desc="Context title shown in the notification header of sign-in error notification for ChromiumOS Secondary Accounts.">
-          ParallaxOS System
+          Parallax Station System
         </message>
         <message name="IDS_SYNC_SIGN_IN_ERROR_BUBBLE_VIEW_MESSAGE" desc="Message in the sign-in error notification when the user's sign-in credentials are out of date.">
-          ParallaxOS could not sync your data because your account sign-in details are out of date.
+          Parallax Station could not sync your data because your account sign-in details are out of date.
         </message>
         <message name="IDS_SYNC_SIGN_IN_ERROR_BUBBLE_VIEW_MESSAGE_2" desc="Message in the sign-in error notification when the user's sign-in credentials are out of date.">
-          ParallaxOS could not save Parallax data in your Google Account because your account sign-in details are out of date
+          Parallax Station could not save Parallax data in your Google Account because your account sign-in details are out of date
         </message>
         <message name="IDS_SYNC_UNAVAILABLE_ERROR_BUBBLE_VIEW_MESSAGE" desc="Message in the sign-in error notification when sync is not available for their domain.">
-          ParallaxOS could not sync your data because Sync is not available for your domain.
+          Parallax Station could not sync your data because Sync is not available for your domain.
         </message>
         <message name="IDS_SYNC_OTHER_SIGN_IN_ERROR_BUBBLE_VIEW_MESSAGE" desc="Message in the sign-in error notification when there's an error signing in.">
-          ParallaxOS could not sync your data due to an error signing in.
+          Parallax Station could not sync your data due to an error signing in.
         </message>
         <message name="IDS_SYNC_OTHER_SIGN_IN_ERROR_BUBBLE_VIEW_MESSAGE_2" desc="Message in the sign-in error notification when there's an error signing in.">
-          ParallaxOS could not save Parallax data in your Google Account due to an error signing in
+          Parallax Station could not save Parallax data in your Google Account due to an error signing in
         </message>
         <message name="IDS_SYNC_PASSPHRASE_ERROR_BUBBLE_VIEW_MESSAGE_2" desc="Message in the sync error bubble view when the user needs to enter their sync passphrase.">
           To use and save Parallax data in your Google Account, enter your passphrase
@@ -1846,10 +1846,10 @@ Parallax is unable to recover your settings.
       </if>
       <if expr="is_chromeos">
         <message name="IDS_UPDATE_RECOMMENDED_DIALOG_TITLE" desc="The window title for the Update Recommended dialog.">
-          Restart ParallaxOS
+          Restart Parallax Station
         </message>
         <message name="IDS_UPDATE_RECOMMENDED" desc="The main text of the Update Recommended dialog.">
-          ParallaxOS needs to be restarted to apply the update.
+          Parallax Station needs to be restarted to apply the update.
         </message>
         <message name="IDS_RELAUNCH_AND_UPDATE" desc="The button in the Update Recommended dialog which updates and restarts ChromeOS.">
           Restart
@@ -2471,7 +2471,7 @@ Parallax is unable to recover your settings.
           Please wait while Parallax installs the latest system updates.
         </message>
         <message name="IDS_EULA_SCREEN_ACCESSIBLE_TITLE" desc="Title to be spoken on opening the OOBE EULA screen">
-          ParallaxOS terms
+          Parallax Station terms
         </message>
       </if>
 

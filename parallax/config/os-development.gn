@@ -1,4 +1,4 @@
-# Native Ash (linux-chromeos) development shell on a Linux x86-64 workstation.
+# Parallax Station native Ash (linux-chromeos) development shell on Linux x86-64.
 target_os = "chromeos"
 target_cpu = "x64"
 is_chromeos_device = false

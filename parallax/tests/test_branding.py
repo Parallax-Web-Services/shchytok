@@ -87,11 +87,11 @@ BRANDED_MESSAGES = """<?xml version="1.0" encoding="UTF-8"?>
   <message name="IDS_ABOUT_CROS_VERSION_LICENSE">ChromiumOS and Chromium credits</message>
   <message name="IDS_ABOUT_TERMS_OF_SERVICE">Not used in Chromium. Placeholder to keep resource maps in sync.</message>
   <message name="IDS_UPDATER">ChromiumUpdater.exe is required</message>
-  <message name="IDS_PRODUCT_OS_NAME">ParallaxOS</message>
-  <message name="IDS_SHORT_PRODUCT_OS_NAME">ParallaxOS</message>
-  <message name="IDS_INSTALLED_PRODUCT_OS_NAME">ParallaxOS</message>
-  <message name="IDS_SETTINGS_ABOUT_OS">About ParallaxOS</message>
-  <message name="IDS_OS_UPDATE">Restart ParallaxOS to update ParallaxOS.</message>
+  <message name="IDS_PRODUCT_OS_NAME">Parallax Station</message>
+  <message name="IDS_SHORT_PRODUCT_OS_NAME">Parallax Station</message>
+  <message name="IDS_INSTALLED_PRODUCT_OS_NAME">Parallax Station</message>
+  <message name="IDS_SETTINGS_ABOUT_OS">About Parallax Station</message>
+  <message name="IDS_OS_UPDATE">Restart Parallax Station to update Parallax Station.</message>
   <message name="IDS_OS_REFERENCE"><ph name="EXAMPLE">$1<ex>ChromiumOS</ex></ph> ChromiumOSUpdater and chrome://os-settings</message>
 </messages></grit>
 """
@@ -173,7 +173,7 @@ BRANDED_ASH_SYSTEM_NAME = '''<grit><messages>
       </if>
       <if expr="not _google_chrome">
         <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" desc="The source of a system-generated notification, as displayed to the user.">
-          ParallaxOS
+          Parallax Station
         </message>
       </if>
       <message name="IDS_TERMS_OF_SERVICE_SCREEN_SUBHEADING">These terms do not expand, modify or limit the ChromiumOS Terms.</message>
@@ -205,6 +205,22 @@ class BrandingTransformsTest(unittest.TestCase):
     def test_message_transform_is_idempotent(self):
         self.assertEqual(branding.brand_messages(BRANDED_MESSAGES), BRANDED_MESSAGES)
 
+    def test_ash_accepts_exact_previous_os_name_and_preserves_legal_references(self):
+        prior = BRANDED_ASH_SYSTEM_NAME.replace("          Parallax Station\n",
+                                                "          ParallaxOS\n")
+        self.assertEqual(branding.brand_ash_system_name(prior), BRANDED_ASH_SYSTEM_NAME)
+        with self.assertRaisesRegex(branding.BrandingError, "one reviewed Ash"):
+            branding.brand_ash_system_name(prior + ASH_SYSTEM_NAME)
+
+    def test_os_migration_preserves_technical_identifiers_and_examples(self):
+        prior = ('<grit><message name="IDS_OS_NAME">ParallaxOS</message>'
+                 '<message name="IDS_REFERENCE">ParallaxOSUpdater and '
+                 '<ph name="VALUE">$1<ex>ParallaxOS</ex></ph></message></grit>')
+        expected = ('<grit><message name="IDS_OS_NAME">Parallax Station</message>'
+                    '<message name="IDS_REFERENCE">ParallaxOSUpdater and '
+                    '<ph name="VALUE">$1<ex>ParallaxOS</ex></ph></message></grit>')
+        self.assertEqual(branding.brand_messages(prior), expected)
+
     def test_malformed_xml_is_rejected(self):
         with self.assertRaises(branding.ET.ParseError):
             branding.brand_messages('<grit><message name="IDS_PRODUCT_NAME">Chromium')
@@ -223,7 +239,8 @@ class BrandingTransformsTest(unittest.TestCase):
                 self.assertNotEqual(previous, entry.branded_sha256)
         self.assertEqual(
             {entry.path for entry in branding.INPUTS if entry.previous_sha256},
-            {"chrome/app/chromium_strings.grd", "chrome/app/settings_chromium_strings.grdp"},
+            {"chrome/app/chromium_strings.grd", "chrome/app/settings_chromium_strings.grdp",
+             "ash/ash_strings.grd"},
         )
 
 
@@ -251,7 +268,7 @@ class BrandingOperationTest(unittest.TestCase):
                 status = branding.main(["--source-root", str(self.root), *arguments])
         return status, stdout.getvalue(), stderr.getvalue()
 
-    def add_os_migration(self):
+    def add_os_migration(self, previous_os=False):
         # A reviewed browser-only release already has Parallax browser text but
         # retains ChromiumOS. Its exact old digest is a distinct accepted input.
         path = "chrome/app/chromium_strings.grd"
@@ -259,13 +276,15 @@ class BrandingOperationTest(unittest.TestCase):
                     '<message name="IDS_PRODUCT_OS_NAME">ChromiumOS</message></grit>\n')
         prior = ('<grit><message name="IDS_PRODUCT_NAME">Parallax</message>'
                  '<message name="IDS_PRODUCT_OS_NAME">ChromiumOS</message></grit>\n')
+        prior_os = ('<grit><message name="IDS_PRODUCT_NAME">Parallax</message>'
+                    '<message name="IDS_PRODUCT_OS_NAME">ParallaxOS</message></grit>\n')
         final = ('<grit><message name="IDS_PRODUCT_NAME">Parallax</message>'
-                 '<message name="IDS_PRODUCT_OS_NAME">ParallaxOS</message></grit>\n')
+                 '<message name="IDS_PRODUCT_OS_NAME">Parallax Station</message></grit>\n')
         entry = branding.Input(path, branding.digest(upstream.encode()),
                                branding.digest(final.encode()), branding.brand_messages,
-                               (branding.digest(prior.encode()),))
+                               (branding.digest(prior.encode()), branding.digest(prior_os.encode())))
         self.inputs = tuple(entry if old.path == path else old for old in self.inputs)
-        (self.root / path).write_bytes(prior.encode())
+        (self.root / path).write_bytes((prior_os if previous_os else prior).encode())
         return self.root / path, upstream.encode(), final.encode()
 
     def test_migrates_reviewed_prior_branding_and_check_stays_read_only(self):
@@ -287,6 +306,12 @@ class BrandingOperationTest(unittest.TestCase):
         path.write_bytes(pristine)
         self.assertEqual(self.run_cli()[0], 0)
         self.assertEqual(path.read_bytes(), expected)
+
+    def test_migrates_reviewed_previous_os_branding(self):
+        path, _, expected = self.add_os_migration(previous_os=True)
+        self.assertEqual(self.run_cli()[0], 0)
+        self.assertEqual(path.read_bytes(), expected)
+        self.assertEqual(self.run_cli("--check")[0], 0)
 
     def test_modified_prior_branding_prevents_every_write(self):
         path, _, _ = self.add_os_migration()

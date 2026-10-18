@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MIN_FREE_BYTES = 100 * 1024**3
 MIN_RAM_BYTES = 16 * 1024**3
 OUTPUTS = {"release": "Parallax", "development": "ParallaxDevelopment",
-           "os-development": "ParallaxOS"}
+           "os-development": "ParallaxStation"}
 DEPOT_REPOSITORY = "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
 LASTCHANGE_HOOK = {
     "name": "lastchange",

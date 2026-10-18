@@ -7,7 +7,7 @@ revision. Run after source extraction, before local edits to the covered files.
 All inputs are validated before staging any output; replacements are atomic per
 file. --check is read-only and exits 1 when branding still needs to be applied.
 
-Linux browser identity and visible ParallaxOS product names are covered. Internal
+Linux browser identity and visible Parallax Station product names are covered. Internal
 chrome executable and URL scheme names, upstream credits, and macOS/Windows
 installation identities remain upstream. GRIT falls back to English for changed
 strings without translations.
@@ -30,7 +30,7 @@ import xml.etree.ElementTree as ET
 
 UPSTREAM_VERSION = "155.0.8059.84"
 PRODUCT = "Parallax"
-OS_PRODUCT = "ParallaxOS"
+OS_PRODUCT = "Parallax Station"
 COMPANY = "Parallax Web Services"
 
 
@@ -68,7 +68,7 @@ _MESSAGE = re.compile(
 )
 _XML_TOKEN = re.compile(r"(<!--.*?-->|<(?:[^>\"']|\"[^\"]*\"|'[^']*')*>)", re.DOTALL)
 _PRODUCT_WORD = re.compile(r"\bChromium\b")
-_OS_PRODUCT_WORD = re.compile(r"\b(?:ChromiumOS|Chromium OS)\b")
+_OS_PRODUCT_WORD = re.compile(r"\b(?:ChromiumOS|Chromium OS|ParallaxOS)\b")
 
 
 def brand_messages(text: str) -> str:
@@ -136,13 +136,19 @@ def brand_linux_icon(text: str) -> str:
 def brand_ash_system_name(text: str) -> str:
     # Ash owns its notification-source name separately from chrome/app strings.
     # Keep Google-branded branches and ChromiumOS Terms/license references intact.
-    old = (
+    template = (
         '        <message name="IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME" '
         'desc="The source of a system-generated notification, as displayed to the user.">\n'
         '          ChromiumOS\n'
         '        </message>'
     )
-    return replace_once(text, old, old.replace("          ChromiumOS\n", "          ParallaxOS\n"))
+    contexts = tuple(template.replace("          ChromiumOS\n", f"          {name}\n")
+                     for name in ("ChromiumOS", "ParallaxOS"))
+    if sum(text.count(context) for context in contexts) != 1:
+        raise BrandingError("expected one reviewed Ash system-name context")
+    old = next(context for context in contexts if context in text)
+    final = template.replace("          ChromiumOS\n", f"          {OS_PRODUCT}\n")
+    return replace_once(text, old, final)
 
 
 @dataclass(frozen=True)
@@ -157,7 +163,7 @@ class Input:
 # Hashes of bytes from the official immutable 155.0.8059.84 source tag, obtained
 # via https://chromium.googlesource.com/chromium/src/+/refs/tags/155.0.8059.84/ .
 # Updating Chromium requires reviewing transformations and every accepted hash.
-# Prior browser-only branding is accepted only where an explicit migration hash
+# Prior browser and OS branding is accepted only where an explicit migration hash
 # is listed; arbitrary local modifications remain an error.
 INPUTS = (
     Input("chrome/app/theme/chromium/BRANDING",
@@ -165,12 +171,14 @@ INPUTS = (
           "d3cbfc28494d83d9ce667e9859ca28c95aa80f35161f8c83f9bcf24f46740446", brand_identity),
     Input("chrome/app/chromium_strings.grd",
           "848216b77ae1c57f8bce5f2fdede59ead363cdabb618c0998ae841c5a2574c8a",
-          "49be52a3bd63e32d686731f596bda46d8c681287117d3e14eed2c1a1552e5a3e", brand_messages,
-          ("36ec04daa9d035a639d1574a03f9d89f775c054ef8062d98a00b7cde87e826c3",)),
+          "75c5baadc57904342d4f4077f6267e82bf4a0a6c01903c128149a5ec77983b79", brand_messages,
+          ("36ec04daa9d035a639d1574a03f9d89f775c054ef8062d98a00b7cde87e826c3",
+           "49be52a3bd63e32d686731f596bda46d8c681287117d3e14eed2c1a1552e5a3e")),
     Input("chrome/app/settings_chromium_strings.grdp",
           "9fb3a5d1020f25121dbc59df33031554bd9f8498c74aa5c220a26364ee0d2b57",
-          "83b2e5a0e9299e36f27958fbd5937cd8f1d8759d0fbd06eb18aaee10605bd771", brand_messages,
-          ("eba3841353ca89da8e27949c6a72940e27ff09fad95e0e1a8c9165b86ea65c05",)),
+          "8ef0aed05595447f020cdcaa4a0513fc546f390c17c1c6326ce397071232faff", brand_messages,
+          ("eba3841353ca89da8e27949c6a72940e27ff09fad95e0e1a8c9165b86ea65c05",
+           "83b2e5a0e9299e36f27958fbd5937cd8f1d8759d0fbd06eb18aaee10605bd771")),
     Input("chrome/common/chrome_paths_linux.cc",
           "e4d5a3c62d12f018b5e37dc86a474570ae278b36f772863802f1663e923d33cc",
           "b0e48d0e74cd10b90348be45464bb11f85f49fc91f99eceb59683c1732af6b69", brand_linux_profile),
@@ -182,8 +190,8 @@ INPUTS = (
           "67eac12997e3539128f4069a6b1dd2dadd64721e69771140f29e493a471fea37", brand_linux_icon),
     Input("ash/ash_strings.grd",
           "d63cf330d7c47dc6aff81a7c763df4d2c7a9127b48bcd2121df88efddf2928dc",
-          "d978c2c6d1e1334cdbd4fd59c8a87edac34acb5b546f9d283d643c9723a05e17",
-          brand_ash_system_name),
+          "7cac85a79ac096b84e83ad5d3a80935b040a0857385fde248616ec67aa0e6248", brand_ash_system_name,
+          ("d978c2c6d1e1334cdbd4fd59c8a87edac34acb5b546f9d283d643c9723a05e17",)),
 )
 
 

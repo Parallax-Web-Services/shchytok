@@ -144,7 +144,7 @@ class CompiledResourceVerificationTest(unittest.TestCase):
         self.write_pack("gen/chrome/grit/chrome_unscaled_resources.h",
                         "gen/chrome/chrome_unscaled_resources.pak", self.images, self.reader.BINARY)
 
-    def write_os_packs(self, *, product="ParallaxOS", notification="ParallaxOS"):
+    def write_os_packs(self, *, product="Parallax Station", notification="Parallax Station"):
         self.strings["IDS_PRODUCT_OS_NAME"] = product
         self.write_browser_packs()
         self.write_pack("gen/ash/strings/grit/ash_strings.h",
@@ -159,13 +159,14 @@ class CompiledResourceVerificationTest(unittest.TestCase):
         self.write_os_packs()
         verifier.verify(self.source, self.output, configuration="os-development")
 
-    def test_os_verification_rejects_either_upstream_os_identity(self):
+    def test_os_verification_rejects_upstream_and_previous_os_identities(self):
         for field, expected in (("product", "IDS_PRODUCT_OS_NAME"),
                                 ("notification", "IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME")):
-            with self.subTest(field=field):
-                self.write_os_packs(**{field: "ChromiumOS"})
-                with self.assertRaisesRegex(verifier.VerificationError, expected):
-                    verifier.verify(self.source, self.output, configuration="os-development")
+            for previous_name in ("ChromiumOS", "ParallaxOS"):
+                with self.subTest(field=field, previous_name=previous_name):
+                    self.write_os_packs(**{field: previous_name})
+                    with self.assertRaisesRegex(verifier.VerificationError, expected):
+                        verifier.verify(self.source, self.output, configuration="os-development")
 
     def test_os_verification_requires_ash_generated_artifacts(self):
         self.write_os_packs()
@@ -189,7 +190,9 @@ class CompiledResourceVerificationTest(unittest.TestCase):
 class ResourceCommandLineTest(unittest.TestCase):
     def test_each_configuration_selects_its_own_default_output(self):
         source = Path("example-src")
-        for configuration, output in verifier.OUTPUTS.items():
+        for configuration, output in (("release", "Parallax"),
+                                      ("development", "ParallaxDevelopment"),
+                                      ("os-development", "ParallaxStation")):
             with self.subTest(configuration=configuration), mock.patch.object(verifier, "verify") as verify:
                 with redirect_stdout(io.StringIO()):
                     result = verifier.main(["--source-root", str(source),

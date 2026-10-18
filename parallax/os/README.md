@@ -1,12 +1,12 @@
-# ParallaxOS
+# Parallax Station
 
-ParallaxOS is a browser-first business operating environment under development. Its intended experience opens into Parallax, bringing workspaces, web apps, remote applications, and business tools into one session.
+Parallax Station is a browser-first business operating environment under development. Its intended experience opens into Parallax, bringing workspaces, web apps, remote applications, and business tools into one session.
 
 The native system shell is **Ash**, the ChromeOS window manager and system UI already included in this Chromium fork. **Helm** is intended to supply business interface components within that environment. These have separate responsibilities: Ash owns windows, the shelf, launcher, notifications, and system controls; the Parallax workspace owns business navigation and work.
 
 ## Current development target
 
-`os-development` builds Chromium's Linux-hosted ChromeOS configuration from the same pinned source as the Parallax browser, with `target_os = "chromeos"` and `is_chromeos_device = false`. Its output is `src/out/ParallaxOS/chrome`. It has a separate user profile at `$XDG_CONFIG_HOME/parallaxos-development`, normally `~/.config/parallaxos-development`.
+`os-development` builds Chromium's Linux-hosted ChromeOS configuration from the same pinned source as the Parallax browser, with `target_os = "chromeos"` and `is_chromeos_device = false`. Its output is `src/out/ParallaxStation/chrome`. It has a separate user profile at `$XDG_CONFIG_HOME/parallax-station-development`, normally `~/.config/parallax-station-development`.
 
 ```sh
 # Run from the repository root with the branding virtual environment active.
@@ -30,7 +30,7 @@ After dependency sync and configuration, these focused targets compile the nativ
 export DEPOT_TOOLS_UPDATE=0
 export PATH="$PWD/parallax/.cache/depot_tools:$PATH"
 cd src
-autoninja -C out/ParallaxOS chrome/app:branded_strings_grit \
+autoninja -C out/ParallaxStation chrome/app:branded_strings_grit \
   chrome/app/theme:chrome_unscaled_resources_grit \
   chrome/app/theme:theme_resources_grit chrome/common:version_header \
   ash/strings:strings_grit
@@ -38,7 +38,7 @@ cd ..
 python3 parallax/tools/verify_resources.py --source-root src --configuration os-development
 ```
 
-The verifier checks `IDS_PRODUCT_OS_NAME` in `gen/chrome/branded_strings_en-US.pak` and `IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME` in `gen/ash/strings/ash_strings_en-US.pak`, both against `ParallaxOS`. It also retains the browser product name, company, Chromium copyright, generated version identity, and original orbital artwork checks. `--output-dir` can select a different output path while keeping these OS checks. Passing resource verification does not establish that the complete shell compiles, launches, or boots.
+The verifier checks `IDS_PRODUCT_OS_NAME` in `gen/chrome/branded_strings_en-US.pak` and `IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME` in `gen/ash/strings/ash_strings_en-US.pak`, both against `Parallax Station`. It also retains the browser product name, company, Chromium copyright, generated version identity, and original orbital artwork checks. `--output-dir` can select a different output path while keeping these OS checks. Passing resource verification does not establish that the complete shell compiles, launches, or boots.
 
 ## Product direction
 
@@ -64,7 +64,7 @@ The image work must also supply the real system services and lifecycle that the 
 
 The intended sequence is:
 
-- Validate the native ParallaxOS shell build and product branding.
+- Validate the native Parallax Station shell build and product branding.
 - Integrate Parallax control-plane screens and Helm business components, and define the app/workspace interfaces.
 - Implement Parallax sign-in and persistent user sessions.
 - Build and boot a ChromiumOS VM image with the Parallax browser.

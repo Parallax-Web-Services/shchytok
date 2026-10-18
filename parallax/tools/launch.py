@@ -11,9 +11,9 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUTS = {"release": "Parallax", "development": "ParallaxDevelopment",
-           "os-development": "ParallaxOS"}
+           "os-development": "ParallaxStation"}
 PROFILES = {"release": "parallax", "development": "parallax-development",
-            "os-development": "parallaxos-development"}
+            "os-development": "parallax-station-development"}
 UNSAFE_FLAGS = {
     "--no-sandbox", "--disable-setuid-sandbox", "--disable-seccomp-filter-sandbox",
     "--disable-namespace-sandbox", "--disable-gpu-sandbox", "--single-process",
@@ -33,7 +33,7 @@ def launch_arguments(root: Path, configuration: str, browser_args: list[str]) ->
     # An explicit user-data-dir is permitted; defaults use a separate Parallax profile.
     explicit_profile = any(arg.split("=", 1)[0] == "--user-data-dir" for arg in browser_args)
     profile_args = [] if explicit_profile else [f"--user-data-dir={profile}"]
-    shell_args = (["--class=parallaxos", "--use-system-clipboard"]
+    shell_args = (["--class=parallax-station", "--use-system-clipboard"]
                   if configuration == "os-development" else ["--class=parallax"])
     return [str(binary), *profile_args, *shell_args, *browser_args]
 

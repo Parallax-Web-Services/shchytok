@@ -42,10 +42,10 @@
   </if>
   <if expr="is_chromeos">
     <message name="IDS_SETTINGS_ABOUT_OS" desc="Menu title for the About ChromiumOS page.">
-      About ParallaxOS
+      About Parallax Station
     </message>
     <message name="IDS_OS_SETTINGS_TAG_OS_VERSION" desc="Text for search result item which, when clicked, navigates the user to about ChromeOS settings, which gives information about the current ChromeOS version.">
-      ParallaxOS version
+      Parallax Station version
     </message>
   </if>
 

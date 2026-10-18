@@ -2,7 +2,7 @@
 
 Parallax is a native Chromium browser fork for Linux x86-64. The complete Chromium **155.0.8059.84** source tree lives in `src/`, imported as a single source snapshot. Chromium's upstream history is not merged into this repository. Dependencies use the exact revisions in `src/DEPS`.
 
-**ParallaxOS** adds a native ChromeOS/Ash development target to the same source tree. Its system model is a browser-first workstation with a shelf, launcher, application windows, and a business workspace. See [the ParallaxOS guide](parallax/os/README.md) for the development target and the path to a bootable ChromiumOS-based system.
+**Parallax Station** adds a native ChromeOS/Ash development target to the same source tree. Its system model is a browser-first workstation with a shelf, launcher, application windows, and a business workspace. See [the Parallax Station guide](parallax/os/README.md) for the development target and the path to a bootable ChromiumOS-based system.
 
 The browser uses Parallax's existing orbital logo from the marketing repository, with its original SVG preserved in `parallax/branding/`. Product names, Linux profile storage, desktop identity, and application icons are rebranded in the Chromium source. The internal build target remains `chrome`.
 

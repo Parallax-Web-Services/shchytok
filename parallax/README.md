@@ -4,7 +4,7 @@ Parallax is a full Chromium source fork. The Chromium snapshot lives in `src/`; 
 
 The source is pinned to Chromium **155.0.8059.84**, revision `5869fe313571d75152b77813cf0a4ee26a4e6df0`. The exact depot_tools revision and original orbital logo checksum are recorded in [upstream.json](upstream.json). The logo is copied from the existing marketing repository's `public/assets/Parallax Mark.svg`, preserving its SVG paths.
 
-The same source also supports the native Ash `os-development` target. See [the ParallaxOS guide](os/README.md) for its build, separate profile, native resource validation, and the future bootable ChromiumOS image milestone.
+The same source also supports the native Ash `os-development` target. See [the Parallax Station guide](os/README.md) for its build, separate profile, native resource validation, and the future bootable ChromiumOS image milestone.
 
 ## Build on Linux
 
@@ -40,7 +40,7 @@ python3 parallax/tools/build.py configure
 python3 parallax/tools/build.py build --configuration development --jobs 16
 ```
 
-The browser presets produce `src/out/Parallax/chrome` for `release` and `src/out/ParallaxDevelopment/chrome` for `development`. The `os-development` preset produces `src/out/ParallaxOS/chrome` with the native ChromeOS/Ash system UI running on the Linux host. All presets use local compilation with Siso through `autoninja`; no remote build account is required. The release preset uses optimization with limited symbols and disables PGO profile consumption. It is an initial local build preset, not an official Chrome distribution configuration.
+The browser presets produce `src/out/Parallax/chrome` for `release` and `src/out/ParallaxDevelopment/chrome` for `development`. The `os-development` preset produces `src/out/ParallaxStation/chrome` with the native ChromeOS/Ash system UI running on the Linux host. All presets use local compilation with Siso through `autoninja`; no remote build account is required. The release preset uses optimization with limited symbols and disables PGO profile consumption. It is an initial local build preset, not an official Chrome distribution configuration.
 
 Once branding and system dependencies are ready, `python3 parallax/tools/build.py all` combines bootstrap, dependency sync and build. It validates checked-in branding and does not regenerate it automatically.
 
@@ -53,7 +53,7 @@ python3 parallax/tools/launch.py -- https://example.com
 python3 parallax/tools/launch.py --configuration development -- about:blank
 ```
 
-The launcher starts the compiled browser with Chromium's sandbox enabled. The browser profiles are `$XDG_CONFIG_HOME/parallax` for `release` and `$XDG_CONFIG_HOME/parallax-development` for `development`; the default base directory is `~/.config`. `os-development` uses its own `parallaxos-development` profile under the same base directory. It rejects sandbox-disabling command-line flags and root execution. Additional Chromium arguments go after `--`; an explicit `--user-data-dir` overrides the default profile.
+The launcher starts the compiled browser with Chromium's sandbox enabled. The browser profiles are `$XDG_CONFIG_HOME/parallax` for `release` and `$XDG_CONFIG_HOME/parallax-development` for `development`; the default base directory is `~/.config`. `os-development` uses its own `parallax-station-development` profile under the same base directory. It rejects sandbox-disabling command-line flags and root execution. Additional Chromium arguments go after `--`; an explicit `--user-data-dir` overrides the default profile.
 
 For a local Linux desktop entry, keep this checkout at its current path and install the wrapper, SVG and desktop file:
 
@@ -114,7 +114,7 @@ python3 parallax/tools/verify_resources.py --source-root src --output-dir src/ou
 
 The read-only verifier checks the compiled English product names and company, retained Chromium copyright, generated version identity, and packed orbital SVGs and Linux icon against the checked-in artwork. It uses Chromium's own resource-pack reader and needs no additional Python packages. These resource checks do not establish that the full browser compiles or launches.
 
-Use `--configuration development` to select `src/out/ParallaxDevelopment` automatically. For the native system build, [the ParallaxOS resource instructions](os/README.md#validate-native-system-branding) add `ash/strings:strings_grit` and `--configuration os-development`, which also validates the compiled ParallaxOS identity in the browser and Ash packs.
+Use `--configuration development` to select `src/out/ParallaxDevelopment` automatically. For the native system build, [the Parallax Station resource instructions](os/README.md#validate-native-system-branding) add `ash/strings:strings_grit` and `--configuration os-development`, which also validates the compiled Parallax Station identity in the browser and Ash packs.
 
 Upstream references: [Linux build instructions](https://chromium.googlesource.com/chromium/src/+/refs/tags/155.0.8059.84/docs/linux/build_instructions.md), [pinned DEPS](https://chromium.googlesource.com/chromium/src/+/5869fe313571d75152b77813cf0a4ee26a4e6df0/DEPS), and [gclient source](https://chromium.googlesource.com/chromium/tools/depot_tools/+/d38909eb68d85b91259f4bf20fe5ebcd38461bc2/gclient.py).
 

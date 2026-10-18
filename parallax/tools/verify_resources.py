@@ -25,7 +25,7 @@ COPYRIGHT = "Copyright {0,date,y} The Chromium Authors. All rights reserved."
 OUTPUTS = {
     "release": "Parallax",
     "development": "ParallaxDevelopment",
-    "os-development": "ParallaxOS",
+    "os-development": "ParallaxStation",
 }
 
 
@@ -153,7 +153,7 @@ def verify(source_root: Path, output_dir: Path, *, configuration: str = "release
             ("IDS_ABOUT_VERSION_COPYRIGHT", COPYRIGHT),
         ]
         if native_os:
-            expected_strings.append(("IDS_PRODUCT_OS_NAME", "ParallaxOS"))
+            expected_strings.append(("IDS_PRODUCT_OS_NAME", "Parallax Station"))
         for name, expected in expected_strings:
             actual = resource_text(strings, strings_header, name, reader)
             if actual != expected:
@@ -164,8 +164,8 @@ def verify(source_root: Path, output_dir: Path, *, configuration: str = "release
             ash_header = files["ash_strings_header"].read_text(encoding="utf-8")
             name = "IDS_ASH_MESSAGE_CENTER_SYSTEM_APP_NAME"
             actual = resource_text(ash_strings, ash_header, name, reader)
-            if actual != "ParallaxOS":
-                raise VerificationError(f"{name}: expected 'ParallaxOS', found {actual!r}")
+            if actual != "Parallax Station":
+                raise VerificationError(f"{name}: expected 'Parallax Station', found {actual!r}")
 
         images = read_pack(files["images_pack"])
         images_header = files["images_header"].read_text(encoding="utf-8")
@@ -198,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     print("PASS: compiled Parallax product names, company, copyrights, orbital SVGs, and Linux icon.")
     if args.configuration == "os-development":
-        print("PASS: compiled ParallaxOS product name and native Ash system notification identity.")
+        print("PASS: compiled Parallax Station product name and native Ash system notification identity.")
     return 0
 
 
