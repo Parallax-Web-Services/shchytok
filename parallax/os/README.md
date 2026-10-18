@@ -71,3 +71,45 @@ The intended sequence is:
 - Add device enrollment, update/recovery infrastructure, and hardware targets.
 
 Upstream references: [pinned ChromeOS/Ash development instructions](https://chromium.googlesource.com/chromium/src/+/5869fe313571d75152b77813cf0a4ee26a4e6df0/docs/chromeos_build_instructions.md), [ChromiumOS developer guide](https://www.chromium.org/chromium-os/developer-library/guides/development/developer-guide/).
+
+## Windows reference VM with WHPX
+
+A native Windows QEMU guest provides a separate reference environment while the Parallax Station shell and bootable-image work continues. Supply an independently downloaded, checksum-verified **raw upstream image**. This helper does not download an image or turn that upstream guest into a branded Parallax Station build.
+
+The helper uses Windows Hypervisor Platform (WHPX), 4 virtual CPUs, 8 GiB RAM, virtio SCSI storage, virtio network/RNG/VGA devices, and a GTK window. It creates a writable qcow2 overlay; the verified raw base remains unchanged.
+
+The initial `max` CPU trial initialized WHPX but the executing guest paused with an unrecoverable virtual-processor exit and XSAVE-state errors. The conservative default now exposes the required SSSE3/SSE4, AES, PCLMULQDQ, POPCNT, CX16 and LAHF-LM features while disabling XSAVE and AVX:
+
+```text
+qemu64,+ssse3,+sse4.1,+sse4.2,+aes,+pclmulqdq,+popcnt,+cx16,+lahf_lm,-xsave,-xsaveopt,-xsavec,-xsaves,-avx,-avx2
+```
+
+This conservative baseline has booted the upstream **R155-16820.30.0** test image (**Chromium 155.0.8059.78**) headlessly on the local Windows WHPX host. Validation confirmed an active fake test session and a framebuffer screenshot showing the Ash shelf, launcher, clock and a Chromium browser window at `chrome://version`. The same desktop check passed after a clean shutdown and restart with the final helper in GTK window mode. This is upstream reference-guest evidence; the repository's Chromium **155.0.8059.84** Parallax Station browser/system build has not been boot-validated.
+
+The reference test session used the official test image's `autologin.py -w` flow and upstream public test access. This establishes a fake development session without exercising a personal account or Parallax authentication. No key material or credentials are included here.
+
+`-CpuModel` can select an explicit alternative for a controlled compatibility trial. The VM state records the selected CPU string so results can be attributed to the configuration that ran.
+
+Run the trusted repository helper from a local Windows copy under the existing execution policy. Copying it avoids treating an unsigned script on the WSL UNC share as a remote script; no execution-policy bypass is needed. The state directory is explicit because the helper's local copy is outside the checkout.
+
+```powershell
+$repo = '\\wsl.localhost\Ubuntu\mnt\wsl\projects\workspace\parallax\shchytok'
+$helper = Join-Path $env:TEMP 'parallax-windows-vm.ps1'
+Copy-Item -LiteralPath "$repo\parallax\tools\windows_vm.ps1" -Destination $helper -Force
+& $helper -Action doctor -QemuPath 'C:\msys64\ucrt64\bin\qemu-system-x86_64.exe'
+
+# Use the verified, decompressed reference image in the workspace cache.
+$image = "$repo\parallax\.build\vm\R155-16820.30.0\chromiumos_test_image.bin"
+$state = "$repo\parallax\.build\vm\reference"
+& $helper -Action start -ImagePath $image -StateDirectory $state
+```
+
+Keep the large base and overlay in the workspace cache; the Windows temporary copy is only the small PowerShell helper. `-QemuPath` accepts either the executable or its directory. Without it, discovery checks `PATH`, `C:\msys64\ucrt64\bin`, then `%ProgramFiles%\qemu`. `doctor` reports QEMU versions and whether its accelerator list includes WHPX; it starts no VM, installs nothing, and changes no Windows features.
+
+The default `-DisplayMode gtk` opens the interactive guest window. For a headless compatibility run, use `-DisplayMode none`; the QEMU helper process is hidden and opens no GTK window. Its virtio VGA framebuffer remains available through the loopback QMP `screendump` command after the normal QMP greeting/capabilities handshake. VM state records the selected display mode. Changing the mode applies to the next start; it does not change another running guest.
+
+The default ports are QMP at **127.0.0.1:4444** and guest SSH forwarding at **127.0.0.1:2222**. Both bind only to Windows loopback. Use `-QmpPort` or `-SshPort` to select different ports. SSH works only if the supplied guest enables an SSH server; the helper creates no accounts or credentials.
+
+The state directory contains `reference-overlay.qcow2`, `vm-state.json` (own PID, UUID, CPU model, display mode, image/overlay paths and loopback ports), and `qemu-stdout.log`/`qemu-stderr.log`. A start refuses an active recorded PID, an occupied port, or an existing overlay with a different backing image/format. Startup failures include captured stderr. A live process after the startup check establishes only that QEMU is still running, not that the guest has booted.
+
+Shut down through the guest normally before reusing its state directory. The helper exposes no process-kill action and never stops another QEMU process. Preserve the raw base at the same path: its overlay depends on that backing file. Keep reference-guest results separate from validation of a branded Parallax Station image.
