@@ -1,0 +1,18 @@
+{
+  "source": "parallax-orbital.svg",
+  "sha256": "fb6317a9dda1267265ad18147173aa60ee14696a18b5dde3221973de8dbb13a5",
+  "sizes": [
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64,
+    96,
+    128,
+    256
+  ],
+  "windowIcon": "Parallax.png",
+  "artworkChanged": false
+}

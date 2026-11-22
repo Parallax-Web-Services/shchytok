@@ -6,6 +6,13 @@ The native system shell is **Ash**, the ChromeOS window manager and system UI al
 
 ## Current development target
 
+The [native Windows Station host](../station/windows/README.md) is a separate
+desktop application with the Parallax shelf, embedded suite/workspace tabs,
+Files, an embedded WSL terminal, and Windows telemetry. It builds and runs directly
+on Windows. Its first implementation uses native WPF controls; it does not run
+the Ash system shell or require the reference VM. The following target remains
+the Linux-hosted Ash development configuration.
+
 `os-development` builds Chromium's Linux-hosted ChromeOS configuration from the same pinned source as the Parallax browser, with `target_os = "chromeos"` and `is_chromeos_device = false`. Its output is `src/out/ParallaxStation/chrome`. It has a separate user profile at `$XDG_CONFIG_HOME/parallax-station-development`, normally `~/.config/parallax-station-development`.
 
 ```sh
@@ -73,6 +80,61 @@ The intended sequence is:
 Upstream references: [pinned ChromeOS/Ash development instructions](https://chromium.googlesource.com/chromium/src/+/5869fe313571d75152b77813cf0a4ee26a4e6df0/docs/chromeos_build_instructions.md), [ChromiumOS developer guide](https://www.chromium.org/chromium-os/developer-library/guides/development/developer-guide/).
 
 ## Windows reference VM with WHPX
+
+### Parallax artwork preview
+
+The separate `D:\Parallax\StationPreview\station-preview.bin` artifact is an
+artwork-branded copy of the pinned reference image described below. It replaces
+verified upstream browser-logo resources and both sets of boot splash frames
+with the canonical Parallax orbital mark. `prepare_vm_branding.py` identifies
+browser artwork by its upstream content, preserves resource IDs, and verifies
+that unrelated resource data is unchanged. `build_vm_preview.py` checks each
+original and replacement asset hash before applying it to the separate copy.
+The original reference image is preserved.
+
+This developer preview uses the upstream browser executable and test OS, with
+the existing non-verified developer boot entry selected for the modified root
+filesystem. It is separate from the native Station compilation and the future
+ChromiumOS distribution with Parallax authentication, updates, and recovery.
+Upstream release metadata and licensing remain present. Its adjacent
+`branding-report.json` records the changes and the preview provenance.
+
+With the completed image and trusted helpers already staged on D:, launch it
+from Windows PowerShell:
+
+```powershell
+& 'D:\Parallax\StationPreview\tools\launch_preview.ps1'
+```
+
+Add `-GuestDesktop` to open the image's account-free guest session and a browser
+at `chrome://version`. This uses the upstream public test-image SSH identity
+from the existing checkout, checks the VM UUID and forwarding-process ownership,
+and pins the guest host key in separate temporary state. The helper handles the
+pinned image's missing optional `OobeAPI` JavaScript wrapper by invoking the
+same upstream guest-login test action. No personal account is signed in.
+
+The branding preview was boot-validated under Windows WHPX on November 13,
+2026: the real orbital mark appeared in the boot splash, the guest browser's
+shelf icon, and its tab favicon. Guest entry and `chrome://version` navigation
+also passed. A test-user login attempt stalled and was replaced with the guest
+path; one WHPX pause was recovered by closing the UUID-checked preview and
+restarting with its preserved overlay. This is preview evidence, not a stability
+or production-readiness claim.
+
+The launcher opens a GTK VM window, preserves guest changes in
+`session\station-preview-overlay.qcow2`, and saves boot screenshots in the
+same session directory. Preview QMP and SSH forwarding bind Windows loopback
+ports 4445 and 2223, separate from the reference guest's ports. It refuses to
+start over an active recorded session; shut down through the guest normally
+before starting it again. To capture the current screen:
+
+```powershell
+& 'D:\Parallax\StationPreview\tools\inspect_vm.ps1' `
+  -StateDirectory 'D:\Parallax\StationPreview\session' `
+  -ScreenPath 'D:\Parallax\StationPreview\session\current.png'
+```
+
+### Unmodified upstream reference
 
 A native Windows QEMU guest provides a separate reference environment while the Parallax Station shell and bootable-image work continues. Supply an independently downloaded, checksum-verified **raw upstream image**. This helper does not download an image or turn that upstream guest into a branded Parallax Station build.
 

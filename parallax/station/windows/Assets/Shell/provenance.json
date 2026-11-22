@@ -1,0 +1,24 @@
+{
+  "sources": [
+    {
+      "source": "core/src/react/WorkspaceLauncher.jsx",
+      "sha256": "b373d7f86bd4ab97a85f938d540f1affe9c6aa27a6d9497087c6810dd6d51d1b"
+    },
+    {
+      "source": "core/src/react/workspace-launcher.css",
+      "sha256": "65aaf231372b7d7abe11a60f74a8ce355ba0f95f60eaaf7b4071503a1e3e329e"
+    },
+    {
+      "source": "core/resources/ecosystem.json",
+      "sha256": "137d85862d2273e4bd4c3def7791e8b2ea0b2c1c5125638d0488bdd87425dc92"
+    },
+    {
+      "source": "helm/resources/js/Helm/shell/AppShell.jsx",
+      "sha256": "e20a3202a0013863ebae1d7b93b4302439c01e338074d1ae7495dd4ba8798239"
+    },
+    {
+      "source": "helm/resources/css/app.css",
+      "sha256": "0175d47f255d9aa394223f230c15692e25274f3bae64d4945e358834bf7ae922"
+    }
+  ]
+}

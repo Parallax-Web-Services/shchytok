@@ -1,0 +1,79 @@
+[
+  {
+    "source": "marketing/public/assets/logos/slipstream-mark.svg",
+    "svg": "slipstream-mark.svg",
+    "sha256": "f95fc867a87d54e3c332e9c75166e79d1adc9d932f33aa55ecd554915232d70f",
+    "png": "slipstream-mark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "marketing/public/assets/logos/slipstream-text.svg",
+    "svg": "slipstream-wordmark.svg",
+    "sha256": "62f77766ce9aefbad7e68f8c576c615a3fb22c9655514b4e0091092f236df4dc",
+    "png": "slipstream-wordmark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "marketing/public/assets/logos/plexus-mark.svg",
+    "svg": "plexus-mark.svg",
+    "sha256": "7552b4fddbc2be961d8c8dbc8256473d51ed6280c55c07a4a0ae8a9e3b4d7036",
+    "png": "plexus-mark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "marketing/public/assets/logos/plexus-text.svg",
+    "svg": "plexus-wordmark.svg",
+    "sha256": "b80183e1a171f4ccf53d38820d91b91d5d63f41f4e955794dd1a52d61e56a4f4",
+    "png": "plexus-wordmark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "marketing/public/assets/logos/positronic-mark.svg",
+    "svg": "positronic-mark.svg",
+    "sha256": "e15a7b61bbe94dd6e921cb2149ea3a5b41a4e8a3da9af0763a74b4ea19886eda",
+    "png": "positronic-mark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "marketing/public/assets/logos/positronic-text.svg",
+    "svg": "positronic-wordmark.svg",
+    "sha256": "d9ef6b8a2508303cb6bce7e96d79d989afd219a5a546502c7d94154c49bcb17d",
+    "png": "positronic-wordmark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "nexus/public/assets/nexus/mark.svg",
+    "svg": "nexus-mark.svg",
+    "sha256": "3b0ed956a5a3cf6abe0c963e8c646fe4f9a0806bf051e76626fc3730f5a66dce",
+    "png": "nexus-mark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "nexus/public/assets/nexus/text.svg",
+    "svg": "nexus-wordmark.svg",
+    "sha256": "4e33c49b1f60b17702a12b0e9e05726abd58657a44fcc0eab5dde7205b4d8856",
+    "png": "nexus-wordmark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "nucleus/apps/nebula-cpanel/payload/shared/nebula.svg",
+    "svg": "nebula-mark.svg",
+    "sha256": "65d20d50e1345731032328079391074da684b7bfef5a863c79f8ddf313e1fe99",
+    "png": "nebula-mark.png",
+    "inheritedColor": null
+  },
+  {
+    "source": "nucleus/apps/resource-map/index.html#brand-svg",
+    "svg": "nucleus-mark.svg",
+    "sha256": "bf57cd2fd5788c17f216c7eae2e8d720078bfaf970bfeeb2743fa2bea6c96741",
+    "png": "nucleus-mark.png",
+    "inheritedColor": "#75e1bb"
+  },
+  {
+    "source": "marketing/public/assets/parallax-header-wordmark.svg",
+    "svg": "parallax-wordmark.svg",
+    "sha256": "7bc31fa3716bc4a1a466617641c07d443c145e9be5de66baf08f86ded6350005",
+    "png": "parallax-wordmark.png",
+    "inheritedColor": null
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "key": "slipstream",
+    "name": "Slipstream",
+    "role": "Work orchestration",
+    "url": "https://slipstream.codes",
+    "accent": "#8cd9ad",
+    "mark": "Assets/Brands/slipstream-mark.png",
+    "wordmark": "Assets/Brands/slipstream-wordmark.png",
+    "wordmarkOnLight": false
+  },
+  {
+    "key": "plexus",
+    "name": "Plexus",
+    "role": "People and teams",
+    "url": "https://plexus.team",
+    "accent": "#7bc9ed",
+    "mark": "Assets/Brands/plexus-mark.png",
+    "wordmark": "Assets/Brands/plexus-wordmark.png",
+    "wordmarkOnLight": false
+  },
+  {
+    "key": "positronic",
+    "name": "Positronic",
+    "role": "Intelligence and infrastructure",
+    "url": "https://positronic.app",
+    "accent": "#f4cd6d",
+    "mark": "Assets/Brands/positronic-mark.png",
+    "wordmark": "Assets/Brands/positronic-wordmark.png",
+    "wordmarkOnLight": false
+  },
+  {
+    "key": "nexus",
+    "name": "Nexus",
+    "role": "Identity and organization",
+    "url": "https://my.parallaxweb.services",
+    "accent": "#f26cff",
+    "mark": "Assets/Brands/nexus-mark.png",
+    "wordmark": "Assets/Brands/nexus-wordmark.png",
+    "wordmarkOnLight": true
+  },
+  {
+    "key": "nebula",
+    "name": "NEBULA",
+    "role": "Networks and clusters",
+    "url": "https://nebula.parallax.link/dashboard",
+    "accent": "#a78bfa",
+    "mark": "Assets/Brands/nebula-mark.png",
+    "wordmark": null,
+    "wordmarkOnLight": false
+  },
+  {
+    "key": "nucleus",
+    "name": "nucleus.",
+    "role": "Machines and private fabric",
+    "url": "https://nucleus.parallax.link/dashboard",
+    "accent": "#75e1bb",
+    "mark": "Assets/Brands/nucleus-mark.png",
+    "wordmark": null,
+    "wordmarkOnLight": false
+  }
+]

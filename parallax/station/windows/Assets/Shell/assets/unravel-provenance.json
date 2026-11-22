@@ -1,0 +1,7 @@
+{
+  "source": "unravel/apps/web/resources/js/Components/ApplicationLogo.tsx",
+  "sourceSha256": "9ae6a83ca121129c8cb9edc0574b9fd6e47091e6b15b8299f9aaeb69b2b4f2d9",
+  "adaptation": "Static SVG of the existing mark; React attributes converted to SVG and currentColor resolved to the existing cream token #191621. Paths and original thread colors unchanged.",
+  "appOrigin": "https://unravel.tools",
+  "entryPath": "/dashboard"
+}

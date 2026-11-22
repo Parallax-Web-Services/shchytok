@@ -1,0 +1,28 @@
+<svg
+
+viewBox="0 0 48 48"
+fill="none"
+xmlns="http://www.w3.org/2000/svg"
+aria-hidden="true"
+>
+<rect width="48" height="48" rx="14" fill="#191621" />
+<path
+d="M10 16.5h6.2c5.2 0 6.2 15 12.1 15H38"
+stroke="var(--logo-thread, #F2668B)"
+stroke-width="3"
+stroke-linecap="round"
+/>
+<path
+d="M10 24h8.4c4.7 0 5.3-7.5 10.1-7.5H38"
+stroke="var(--logo-line, #EDEAF2)"
+stroke-width="3"
+stroke-linecap="round"
+/>
+<path
+d="M10 31.5h7.4c4.4 0 5.4-7.5 10.3-7.5H38"
+stroke="var(--logo-line, #EDEAF2)"
+stroke-width="3"
+stroke-linecap="round"
+/>
+<circle cx="38" cy="31.5" r="2.1" fill="var(--logo-thread, #F2668B)" />
+</svg>

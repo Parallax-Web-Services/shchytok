@@ -9,3 +9,5 @@
 /.gclient_last_sync_build_vars
 /.cipd/
 /src/out/
+/parallax/station/windows/bin/
+/parallax/station/windows/obj/

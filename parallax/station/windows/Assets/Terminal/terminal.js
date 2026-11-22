@@ -1,0 +1,23 @@
+'use strict';
+window.addEventListener('error', event => window.chrome.webview.postMessage({type:'error',data:event.message}));
+const terminal = new Terminal({fontFamily:'Cascadia Mono, Consolas, monospace',fontSize:14,cursorBlink:true,scrollback:5000,theme:{background:'#120c1b',foreground:'#f1e5d2',cursor:'#c699ff',selectionBackground:'#634080'}});
+const fit = new FitAddon.FitAddon();
+terminal.loadAddon(fit);
+terminal.open(document.getElementById('terminal'));
+window.stationTerminal = terminal;
+window.stationFit = fit;
+const send = value => window.chrome.webview.postMessage(value);
+terminal.onData(data => send({type:'input',data}));
+terminal.onResize(size => send({type:'resize',columns:size.cols,rows:size.rows}));
+terminal.attachCustomKeyEventHandler(event => !(event.ctrlKey && !event.shiftKey && event.key.toLowerCase()==='c' && terminal.hasSelection()));
+window.chrome.webview.addEventListener('message', event => {
+  const message = event.data;
+  if(message.type==='output') terminal.write(message.data, () => send({type:'written'}));
+  else if(message.type==='clear') terminal.clear();
+  else if(message.type==='reset') terminal.reset();
+  else if(message.type==='focus') terminal.focus();
+  else if(message.type==='paste') terminal.paste(message.data);
+});
+new ResizeObserver(() => fit.fit()).observe(document.getElementById('terminal'));
+fit.fit(); terminal.focus();
+send({type:'ready',columns:terminal.cols,rows:terminal.rows});

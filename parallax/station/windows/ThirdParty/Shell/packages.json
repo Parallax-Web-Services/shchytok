@@ -1,0 +1,97 @@
+[
+  {
+    "name": "react",
+    "version": "19.2.7",
+    "license": "MIT"
+  },
+  {
+    "name": "scheduler",
+    "version": "0.27.0",
+    "license": "MIT"
+  },
+  {
+    "name": "react-dom",
+    "version": "19.2.7",
+    "license": "MIT"
+  },
+  {
+    "name": "react-aria",
+    "version": "3.50.0",
+    "license": "Apache-2.0"
+  },
+  {
+    "name": "react-stately",
+    "version": "3.48.0",
+    "license": "Apache-2.0"
+  },
+  {
+    "name": "clsx",
+    "version": "2.1.1",
+    "license": "MIT"
+  },
+  {
+    "name": "@react-aria/focus",
+    "version": "3.22.1",
+    "license": "Apache-2.0"
+  },
+  {
+    "name": "@react-aria/interactions",
+    "version": "3.28.1",
+    "license": "Apache-2.0"
+  },
+  {
+    "name": "@headlessui/react",
+    "version": "2.2.10",
+    "license": "MIT"
+  },
+  {
+    "name": "@tanstack/virtual-core",
+    "version": "3.17.3",
+    "license": "MIT"
+  },
+  {
+    "name": "@tanstack/react-virtual",
+    "version": "3.14.5",
+    "license": "MIT"
+  },
+  {
+    "name": "use-sync-external-store",
+    "version": "1.6.0",
+    "license": "MIT"
+  },
+  {
+    "name": "@floating-ui/utils",
+    "version": "0.2.11",
+    "license": "MIT"
+  },
+  {
+    "name": "@floating-ui/react",
+    "version": "0.26.28",
+    "license": "MIT"
+  },
+  {
+    "name": "tabbable",
+    "version": "6.5.0",
+    "license": "MIT"
+  },
+  {
+    "name": "@floating-ui/core",
+    "version": "1.7.5",
+    "license": "MIT"
+  },
+  {
+    "name": "@floating-ui/dom",
+    "version": "1.7.6",
+    "license": "MIT"
+  },
+  {
+    "name": "@floating-ui/react-dom",
+    "version": "2.1.8",
+    "license": "MIT"
+  },
+  {
+    "name": "@heroicons/react",
+    "version": "2.2.0",
+    "license": "MIT"
+  }
+]

@@ -14,6 +14,8 @@ param(
     [string]$ImagePath,
     [string]$StateDirectory,
     [string]$QemuPath,
+    [ValidateSet('upstream-reference-guest', 'parallax-station-branding-preview')]
+    [string]$ImageKind = 'upstream-reference-guest',
     [ValidateSet('gtk', 'none')]
     [string]$DisplayMode = 'gtk',
     [ValidateNotNullOrEmpty()]
@@ -108,7 +110,16 @@ try {
     }
     New-Item -ItemType Directory -Path $StateDirectory -Force | Out-Null
     $state = (Resolve-Path -LiteralPath $StateDirectory).ProviderPath
-    $overlay = Join-Path $state 'reference-overlay.qcow2'
+    $isPreview = $ImageKind -eq 'parallax-station-branding-preview'
+    if ($isPreview) {
+        $reportPath = Join-Path (Split-Path -Parent $baseImage) 'branding-report.json'
+        $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
+        if ($report.kind -ne $ImageKind -or -not $report.complete) {
+            throw 'The supplied image lacks a completed Parallax branding preview report.'
+        }
+    }
+    $overlayName = if ($isPreview) { 'station-preview-overlay.qcow2' } else { 'reference-overlay.qcow2' }
+    $overlay = Join-Path $state $overlayName
     $stateFile = Join-Path $state 'vm-state.json'
     if ($baseImage -ceq $overlay) { throw 'The base image and overlay must have different paths.' }
 
@@ -137,8 +148,9 @@ try {
     $stdoutLog = Join-Path $state 'qemu-stdout.log'
     $stderrLog = Join-Path $state 'qemu-stderr.log'
     $drivePath = $overlay.Replace(',', ',,')
+    $vmName = if ($isPreview) { 'Parallax Station - branding preview' } else { 'Parallax Station (upstream reference guest)' }
     $qemuArguments = @(
-        '-name', 'Parallax Station (upstream reference guest)',
+        '-name', $vmName,
         '-uuid', $vmUuid,
         '-machine', 'q35', '-accel', 'whpx', '-cpu', $CpuModel,
         '-smp', '4', '-m', '8192',
@@ -156,7 +168,7 @@ try {
     $vmProcess = Start-Process -FilePath $qemu -ArgumentList $argumentLine -WorkingDirectory $state `
         -WindowStyle $windowStyle -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
     [ordered]@{
-        Kind = 'upstream-reference-guest'; ProcessId = $vmProcess.Id; Uuid = $vmUuid
+        Kind = $ImageKind; ProcessId = $vmProcess.Id; Uuid = $vmUuid
         QemuPath = $qemu; ImagePath = $baseImage; OverlayPath = $overlay; CpuModel = $CpuModel; DisplayMode = $DisplayMode
         QmpHost = '127.0.0.1'; QmpPort = $QmpPort; SshHost = '127.0.0.1'; SshPort = $SshPort
         StartedUtc = [DateTime]::UtcNow.ToString('o')
@@ -168,13 +180,17 @@ try {
         $diagnostic = Get-Content -LiteralPath $stderrLog -Raw -ErrorAction SilentlyContinue
         throw "QEMU exited during startup ($($vmProcess.ExitCode)). $diagnostic"
     }
-    Write-Output "Started upstream reference guest, PID $($vmProcess.Id)."
+    Write-Output "Started $ImageKind, PID $($vmProcess.Id)."
     Write-Output "Overlay: $overlay"
     Write-Output "CPU model: $CpuModel"
     Write-Output "Display mode: $DisplayMode"
     Write-Output "QMP: 127.0.0.1:$QmpPort; SSH forwarding: 127.0.0.1:$SshPort (requires guest SSH service)."
     Write-Output "State and startup diagnostics: $state"
-    Write-Output 'This is an upstream reference VM, not a branded or boot-validated Parallax Station image.'
+    if ($isPreview) {
+        Write-Output 'Artwork-branded upstream developer preview. This is separate from the native Station OS build.'
+    } else {
+        Write-Output 'This is an upstream reference VM, not a branded or boot-validated Parallax Station image.'
+    }
 } catch {
     Write-Error $_
     exit 1

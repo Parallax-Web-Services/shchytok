@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "products": [
+    {
+      "key": "continuum",
+      "name": "Continuum",
+      "role": "CEO",
+      "description": "Direction and decisions.",
+      "accent": "#fbbf24",
+      "aliases": [],
+      "brand": {
+        "asset": "continuum-102.png",
+        "url": "https://continuum.ceo/assets/council/assets/small/continuum-102.png"
+      },
+      "href": "https://continuum.ceo/dashboard",
+      "links": [
+        {
+          "id": "command",
+          "label": "CEO Command",
+          "href": "https://continuum.ceo/dashboard"
+        },
+        {
+          "id": "companies",
+          "label": "Companies",
+          "href": "https://continuum.ceo/companies"
+        },
+        {
+          "id": "boardroom",
+          "label": "Boardroom",
+          "href": "https://continuum.ceo/boardroom"
+        },
+        {
+          "id": "portfolio",
+          "label": "Portfolio",
+          "href": "https://continuum.ceo/portfolio"
+        }
+      ]
+    },
+    {
+      "key": "slipstream",
+      "name": "Slipstream",
+      "role": "CTO",
+      "description": "Engineering and delivery.",
+      "accent": "#73bbff",
+      "aliases": [],
+      "brand": {
+        "asset": "slipstream-102.png",
+        "url": "https://continuum.ceo/assets/council/assets/small/slipstream-102.png"
+      },
+      "href": "https://slipstream.codes/dashboard",
+      "links": [
+        {
+          "id": "command",
+          "label": "CTO Command",
+          "href": "https://slipstream.codes/dashboard"
+        },
+        {
+          "id": "kits",
+          "label": "Kits",
+          "href": "https://slipstream.codes/kits"
+        },
+        {
+          "id": "schemas",
+          "label": "Schemas",
+          "href": "https://slipstream.codes/schemas"
+        }
+      ]
+    },
+    {
+      "key": "quark",
+      "name": "Quark",
+      "role": "CFO",
+      "description": "Cash, commitments, and scenarios.",
+      "accent": "#d6a37a",
+      "aliases": [
+        "parity"
+      ],
+      "brand": {
+        "asset": "quark-102.png",
+        "url": "https://continuum.ceo/assets/council/assets/small/quark-102.png"
+      },
+      "href": "https://continuum.ceo/quark",
+      "links": [
+        {
+          "id": "command",
+          "label": "CFO Command",
+          "href": "https://continuum.ceo/quark"
+        },
+        {
+          "id": "ledger",
+          "label": "Cash entries",
+          "href": "https://continuum.ceo/quark?kind=ledger"
+        },
+        {
+          "id": "scenario",
+          "label": "Scenarios",
+          "href": "https://continuum.ceo/quark?kind=scenario"
+        },
+        {
+          "id": "commitment",
+          "label": "Commitments",
+          "href": "https://continuum.ceo/quark?kind=commitment"
+        },
+        {
+          "id": "brief",
+          "label": "Briefs",
+          "href": "https://continuum.ceo/quark?kind=brief"
+        }
+      ]
+    },
+    {
+      "key": "plexus",
+      "name": "Plexus",
+      "role": "COO",
+      "description": "People and operations.",
+      "accent": "#34d399",
+      "aliases": [],
+      "brand": {
+        "asset": "plexus-102.png",
+        "url": "https://continuum.ceo/assets/council/assets/small/plexus-102.png"
+      },
+      "href": "https://continuum.ceo/workspaces/plexus",
+      "links": [
+        {
+          "id": "command",
+          "label": "Operations",
+          "href": "https://continuum.ceo/workspaces/plexus"
+        },
+        {
+          "id": "workstreams",
+          "label": "Workstreams",
+          "href": "https://continuum.ceo/workstreams"
+        },
+        {
+          "id": "workers",
+          "label": "Workers",
+          "href": "https://continuum.ceo/workers"
+        }
+      ]
+    },
+    {
+      "key": "positronic",
+      "name": "Positronic",
+      "role": "CIO",
+      "description": "Machines, models, and shared context.",
+      "accent": "#f4bd32",
+      "aliases": [],
+      "brand": {
+        "asset": "positronic-102.png",
+        "url": "https://continuum.ceo/assets/council/assets/small/positronic-102.png"
+      },
+      "href": "https://positronic.app/dashboard",
+      "links": [
+        {
+          "id": "machines",
+          "label": "Machines",
+          "href": "https://positronic.app/dashboard/machines"
+        },
+        {
+          "id": "models",
+          "label": "Models",
+          "href": "https://positronic.app/dashboard/models"
+        },
+        {
+          "id": "context",
+          "label": "Context",
+          "href": "https://positronic.app/dashboard/context"
+        },
+        {
+          "id": "connections",
+          "label": "Connections",
+          "href": "https://positronic.app/dashboard/connections"
+        }
+      ]
+    },
+    {
+      "key": "pulsar",
+      "name": "Pulsar",
+      "role": "CMO",
+      "description": "Campaigns, content, and handoffs.",
+      "accent": "#ff967d",
+      "aliases": [],
+      "brand": {
+        "asset": "pulsar-102.png",
+        "url": "https://continuum.ceo/assets/council/assets/small/pulsar-102.png"
+      },
+      "href": "https://continuum.ceo/pulsar",
+      "links": [
+        {
+          "id": "command",
+          "label": "CMO Command",
+          "href": "https://continuum.ceo/pulsar"
+        },
+        {
+          "id": "campaign",
+          "label": "Campaigns",
+          "href": "https://continuum.ceo/pulsar?kind=campaign"
+        },
+        {
+          "id": "creative",
+          "label": "Creative",
+          "href": "https://continuum.ceo/pulsar?kind=creative"
+        },
+        {
+          "id": "handoff",
+          "label": "Handoffs",
+          "href": "https://continuum.ceo/pulsar?kind=handoff"
+        },
+        {
+          "id": "report",
+          "label": "Performance",
+          "href": "https://continuum.ceo/pulsar?kind=report"
+        },
+        {
+          "id": "brief",
+          "label": "Briefs",
+          "href": "https://continuum.ceo/pulsar?kind=brief"
+        }
+      ]
+    }
+  ],
+  "shared": {
+    "key": "parallax",
+    "name": "Parallax",
+    "role": "Shared assets",
+    "description": "Shared assets.",
+    "accent": "#a78bfa",
+    "brand": {
+      "asset": "parallax-mark.svg",
+      "url": "https://parallaxweb.services/assets/council/assets/parallax-mark.svg"
+    },
+    "href": "https://continuum.ceo/domains",
+    "links": [
+      {
+        "id": "domains",
+        "label": "Domains",
+        "href": "https://continuum.ceo/domains"
+      },
+      {
+        "id": "sites",
+        "label": "Sites",
+        "href": "https://continuum.ceo/sites"
+      },
+      {
+        "id": "branding",
+        "label": "Branding Studio",
+        "href": "https://continuum.ceo/branding"
+      }
+    ]
+  },
+  "commands": [
+    {
+      "id": "inbox",
+      "label": "Inbox",
+      "href": "https://continuum.ceo/inbox"
+    },
+    {
+      "id": "mission-control",
+      "label": "Mission Control",
+      "href": "https://continuum.ceo/mission-control"
+    },
+    {
+      "id": "missions",
+      "label": "Missions",
+      "href": "https://continuum.ceo/missions"
+    },
+    {
+      "id": "discovery",
+      "label": "Discovery",
+      "href": "https://continuum.ceo/discovery"
+    },
+    {
+      "id": "workstreams",
+      "label": "Workstreams",
+      "href": "https://continuum.ceo/workstreams"
+    },
+    {
+      "id": "projects",
+      "label": "Projects",
+      "href": "https://continuum.ceo/projects"
+    },
+    {
+      "id": "workers",
+      "label": "Workers",
+      "href": "https://continuum.ceo/workers"
+    }
+  ],
+  "legacy_tools": [
+    {
+      "id": "intelligence",
+      "label": "Intelligence",
+      "href": "https://continuum.ceo/workspaces/positronic"
+    },
+    {
+      "id": "search",
+      "label": "Search",
+      "href": "https://continuum.ceo/search"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "package": "@parallax/core",
+  "sources": [
+    {
+      "source": "core/src/react/WorkspaceLauncher.jsx",
+      "sha256": "e225ea920ab97e05b0f7c10f0e3ff41acb8d4da8821db3b3767702027727daed"
+    },
+    {
+      "source": "core/src/react/workspace-launcher.css",
+      "sha256": "65aaf231372b7d7abe11a60f74a8ce355ba0f95f60eaaf7b4071503a1e3e329e"
+    },
+    {
+      "source": "core/src/index.js",
+      "sha256": "3768ad9fe26917f3e1012186cd7dfb4419591f82ddccad0ea7989ee517b8ea6a"
+    },
+    {
+      "source": "core/resources/ecosystem.json",
+      "sha256": "d8b208af35a8358a7b3c6f836df4174d3f12381d352fa372d5a3e42bb4a38bf9"
+    }
+  ]
+}
